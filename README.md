@@ -1,8 +1,11 @@
 # FinalProjDonut_frontend
 
 ## 커밋 메시지 작성 가이드
-이 가이드는 커밋 메시지를 일관되게 작성하기 위한 규칙을 제공합니다. <br>
-명확한 커밋 메시지는 팀 내에서 변경 사항을 효과적으로 전달하고 추적할 수 있도록 도와줍니다.<br><br>
+이 가이드는 커밋 메시지를 일관되게 작성하기 위한 규칙을 정리했습니다. <br>
+명확한 커밋 메시지는 변경 사항을 효과적으로 전달하고 추적할 수 있도록 도와주니<br>
+자세히 작성 부탁드립니다.
+멋진 포트폴리오를 위해 화이팅! 🎈
+<br><br>
 
 ## 모듈 관련 태그
 [AI]: 인공지능 관련 기능<br>
@@ -19,44 +22,46 @@
 [ANALYTICS]: 분석 및 보고 기능<br><br>
 
 ## 기타 태그
+[FIX]: 버그 수정<br>
+[ADD]: 새로운 기능 추가<br>
+[UPDATE]: 기존 기능 수정<br>
+[REMOVE]: 기능 삭제<br>
 [TEST]: 테스트 및 품질 보증 관련 작업<br>
 [DOCS]: 문서화 작업<br>
 [DEPLOY]: 배포 관련 작업<br>
 [SECURITY]: 보안 관련 작업<br><br><br>
 
-
 ## 커밋 메시지 형식
-
-&#91;모듈&#93;&#91;기능&#93;설명<br>
+[모듈][기능][작업]설명<br><br><br>
 
 ## 커밋 메시지 예시
 AI 관련<br>
-[AI][QUERY]AI 쿼리 처리 로직 개선<br>
-[AI][LEARNING]기계 학습 모델 성능 향상<br><br>
+[AI][QUERY][FIX]AI 쿼리 처리 로직 버그 수정<br>
+[AI][LEARNING][ADD]기계 학습 모델 성능 향상 기능 추가<br><br>
 NLP 관련<br>
-[NLP][RESPONSE]자연어 응답 생성 알고리즘 최적화<br>
-[NLP][QUERY]자연어 쿼리 처리 기능 추가<br><br>
+[NLP][RESPONSE][UPDATE]자연어 응답 생성 알고리즘 수정<br>
+[NLP][QUERY][ADD]자연어 쿼리 처리 기능 추가<br><br>
 사용자 관련<br>
-[USER][AUTH]사용자 인증 기능 추가<br>
-[USER][PROFILE]사용자 프로필 수정 기능 구현<br><br>
+[USER][AUTH][FIX]사용자 인증 버그 수정<br>
+[USER][PROFILE][ADD]사용자 프로필 수정 기능 추가<br><br>
 데이터 관련<br>
-[DATA][STORAGE]데이터베이스 연결 설정<br>
-[DATA][ANALYTICS]데이터 분석 결과 리포트 기능 추가<br><br>
+[DATA][STORAGE][UPDATE]데이터베이스 연결 설정 수정<br>
+[DATA][ANALYTICS][REMOVE]데이터 분석 결과 리포트 기능 삭제<br><br>
 인터페이스 관련<br>
-[INTERFACE][UI]로그인 페이지 UI 개선<br>
-[INTERFACE][UX]사용자 경험 개선을 위한 피드백 반영<br><br>
+[INTERFACE][UI][UPDATE]로그인 페이지 UI 개선<br>
+[INTERFACE][UX][ADD]사용자 경험 개선을 위한 피드백 반영<br><br>
 테스트 관련<br>
-[TEST][UNIT]단위 테스트 추가<br>
-[TEST][INTEGRATION]통합 테스트 케이스 작성<br><br>
+[TEST][UNIT][FIX]단위 테스트 버그 수정<br>
+[TEST][INTEGRATION][ADD]통합 테스트 케이스 추가<br><br>
 문서화 관련<br>
-[DOCS][README]프로젝트 설명서 업데이트<br>
-[DOCS][API]API 문서화 작업 완료<br><br>
+[DOCS][README][UPDATE]프로젝트 설명서 업데이트<br>
+[DOCS][API][ADD]API 문서화 작업 완료<br><br>
 배포 관련<br>
-[DEPLOY][PROD]프로덕션 서버 배포<br>
-[DEPLOY][STAGING]스테이징 환경 설정<br><br>
+[DEPLOY][PROD][ADD]프로덕션 서버 배포<br>
+[DEPLOY][STAGING][UPDATE]스테이징 환경 설정 수정<br><br>
 보안 관련<br>
-[SECURITY][AUTH]JWT 기반 인증 구현<br>
-[SECURITY][VULNERABILITY]보안 취약점 수정<br><br>
+[SECURITY][AUTH][FIX]JWT 기반 인증 버그 수정<br>
+[SECURITY][VULNERABILITY][REMOVE]보안 취약점 관련 기능 삭제<br><br><br>
 
 ## 기능관련 태그 예시
 [QUERY]: 데이터베이스나 API에 대한 요청.<br>
@@ -160,8 +165,6 @@ NLP 관련<br>
 [SUPPORT_TICKETING]: 고객 지원 요청 관리 시스템.<br>
 [CHATBOT]: 자동화된 대화형 인터페이스.<br>
 
-이 가이드를 통해 팀원들이 일관된 형식으로 커밋 메시지를 작성하여, 
-개발 과정이 더욱 효율적이고 조직적으로 이루어질 수 있도록 합시다!!!
-추가 질문이 있는 경우 언제든지 문의해 주세요!<br>
-이 가이드를 사용하여 팀 내에서 커밋 메시지를 일관되게 작성할 수 있을 것입니다.<br>
-추가적인 수정이나 요청이 필요하시면 말씀해 주세요!<br>
+이 가이드로 저희 팀원들이 일관된 형식으로 커밋 메시지를 작성할 수 있고, <br>
+개발 과정이 더 효율적이고 조직적으로 이루어질 수 있도록 합시다! <br>
+추가적인 수정이나 요청이 필요하시면 언제든지 말씀해 주세요:D <br>
