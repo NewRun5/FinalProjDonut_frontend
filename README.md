@@ -23,7 +23,7 @@
 [TEST]: 테스트 및 품질 보증 관련 작업<br>
 [DOCS]: 문서화 작업<br>
 [DEPLOY]: 배포 관련 작업<br>
-[SECURITY]: 보안 관련 작업<br><br><br>
+[SECURITY]: 보안 관련 작업<br>
 [FIX]: 버그 수정<br>
 [ADD]: 새로운 기능 추가<br>
 [UPDATE]: 기존 기능 수정<br>
