@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --main : #6463af;
+  --point : #44478F;
+  --black : #101015;
+  --placeholder: #9797B8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@font-face {
+  font-family: 'pretendard';
+  src: url('/fonts/Pretendard-Regular.woff2') format('woff2'),
+       url('/fonts/Pretendard-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'pretendard', sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* 기본 main-content 스타일 */
+.main-content {
+  flex-grow: 1;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #ffffff;
+  transition: margin-left 0.3s ease;  /* 사이드바 크기 전환 효과 */
+  position: relative;
+}
+
+/* 사이드바가 확장되었을 때 */
+.main-content.expanded {
+  margin-left: 250px;  /* 사이드바가 차지하는 너비만큼 공간 확보 */
+}
+
+/* 사이드바가 축소되었을 때 */
+.main-content.full {
+  margin-left: 20px;  /* 축소된 사이드바의 너비만큼만 공간 확보 */
+}
+
+
+/* 전체 레이아웃 */
+.layout {
+  display: flex;
+  height: 100vh;
+}
