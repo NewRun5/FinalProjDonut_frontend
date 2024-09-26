@@ -5,6 +5,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --main : #6463af;
+  --point : #44478F;
+  --black : #101015;
+  --placeholder: #9797B8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,14 +18,27 @@
   }
 }
 
+@font-face {
+  font-family: 'pretendard';
+  src: url('/fonts/Pretendard-Regular.woff2') format('woff2'),
+       url('/fonts/Pretendard-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'pretendard', sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
 }

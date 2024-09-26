@@ -1,0 +1,33 @@
+/* styles/sidebar.css */
+
+.sidebar {
+  width: 250px;
+  background-color: var(--main);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar.hidden {display: none;}
+
+.sidebar-header {display: flex;justify-content: space-between;align-items: center;padding-bottom: 40px;}
+
+.sidebar-user {padding-bottom: 40px;}
+.profile-icon {display: flex; align-items: center;}
+.profile-icon h2 {padding-left: 10px;}
+
+.sidebar-nav {padding: 20px 0; border-top: 1px solid #ffffff;}
+.sidebar-nav ul {list-style: none;padding: 0;}
+.sidebar-nav li {margin: 20px 0;}
+
+.archive_btn {display: flex; align-items: center; padding-bottom: 20px;}
+.archive_btn h2 {padding-left: 10px;}
+
+.toggle-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
