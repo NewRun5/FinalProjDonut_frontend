@@ -42,3 +42,30 @@ body {
   display: flex;
   min-height: 100vh;
 }
+
+/* 기본 main-content 스타일 */
+.main-content {
+  flex-grow: 1;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #ffffff;
+  transition: margin-left 0.3s ease;  /* 사이드바 크기 전환 효과 */
+  position: relative;
+}
+
+/* 사이드바가 확장되었을 때 */
+.main-content.expanded {
+  margin-left: 250px;  /* 사이드바가 차지하는 너비만큼 공간 확보 */
+}
+
+/* 사이드바가 축소되었을 때 */
+.main-content.full {
+  margin-left: 20px;  /* 축소된 사이드바의 너비만큼만 공간 확보 */
+}
+
+
+/* 전체 레이아웃 */
+.layout {
+  display: flex;
+  height: 100vh;
+}

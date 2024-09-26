@@ -3,7 +3,11 @@
 import { useState, useRef, useEffect } from 'react';
 import '../styles/prompt.css';  // 프롬프트 관련 CSS 파일 임포트
 
-export default function ChatPrompt() {
+interface ChatPromptProps {
+  onSendMessage: (messageText: string) => void;  // 메시지 전송을 위한 prop
+}
+
+export default function ChatPrompt({ onSendMessage }: ChatPromptProps) {
   const [inputText, setInputText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -13,12 +17,12 @@ export default function ChatPrompt() {
 
   const handleSubmit = () => {
     if (inputText.trim() !== '') {
-      console.log("입력된 텍스트:", inputText);
-      setInputText(''); // 제출 후 입력값 초기화
+      onSendMessage(inputText);  // 상위 컴포넌트로 메시지 전달
+      setInputText('');  // 제출 후 입력값 초기화
     }
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSubmit();

@@ -1,15 +1,17 @@
 // app/page.tsx (또는 pages/index.tsx)
+
 import './styles/main.css';  // CSS 파일을 임포트
-import ChatPrompt from './components/Prompt';  // ChatPrompt 컴포넌트 임포트
+import Chat from './components/Chat';  // Chat 컴포넌트 임포트
 
 export default function Home() {
+
   return (
     <div className="home-page">
       <header className="header">
         <div className="search-icon">
           <img src="/images/main_logo.svg" alt="Search Icon" />
         </div>
-        <h1>여러분의 EduCraft, DONUT</h1>        
+        <h1>나만의 원티드 클래스, DONUT</h1>        
       </header>
 
       <section className="suggestions">
@@ -20,14 +22,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* <div className="prompt">
-        <input type="text" placeholder="무엇을 배우고 싶으신가요?" />
-        <button className="donut-button">
-          <img src="/images/prompt_btn.svg" alt="Donut Icon" />
-        </button>
-      </div> */}
-      {/* 프롬프트 영역 */}
-      <ChatPrompt />
+      {/* Chat 컴포넌트 */}
+      <Chat />
     </div>
   );
 }
