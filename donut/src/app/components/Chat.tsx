@@ -1,17 +1,17 @@
-"use client";  // 클라이언트 컴포넌트로 설정
 import { useState, useEffect, useRef } from 'react';
-import '../styles/chat.css';  // CSS 파일 임포트
+import '../styles/chat.css';
 import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-import remarkGfm from 'remark-gfm'; // GitHub Flavored Markdown 지원
-import ChatPrompt from './Prompt';  // ChatPrompt 컴포넌트 임포트
+import rehypeRaw from 'rehype-raw';  // HTML 태그를 처리하는 플러그인
+import remarkGfm from 'remark-gfm';
+import ChatPrompt from './Prompt';
 
-// Chat.tsx
 export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
   const ws = useRef<WebSocket | null>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
-  const [showLoading, setShowLoading] = useState(false);  // 답변 생성 중 상태
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);  // 마지막 메시지에 대한 참조
+  const botMessagesRef = useRef({ currentBotMessage: 0 });
+  const [showLoading, setShowLoading] = useState(false);
 
   // WebSocket 메시지 수신 처리
   useEffect(() => {
@@ -24,12 +24,9 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
     ws.current.onmessage = (event) => {
       console.log('Message received from WebSocket: ', event.data);
 
-      // 2000ms 동안 로딩 상태를 유지한 후 메시지를 표시
       setTimeout(() => {
         setShowLoading(false);  // 답변 생성 중 상태 비활성화
-        // 줄바꿈 처리 (event.data의 줄바꿈을 <br />로 변환)
-        const formattedMessage = event.data.replace(/\n/g, '<br />');
-        setMessages((prev) => [...prev, { sender: 'Bot', text: formattedMessage }]);
+        setMessages((prev) => [...prev, { sender: 'Bot', text: event.data }]);
       }, 2000);
     };
 
@@ -46,24 +43,39 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
     };
   }, []);
 
-  // messages가 업데이트될 때마다 스크롤을 맨 아래로 이동
+  // Bot 메시지가 추가될 때마다 마지막 메시지의 시작 부분으로 스크롤
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, showLoading]);
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [messages]);
 
-  // 메시지 전송 함수 수정
   const sendMessage = (messageText: string) => {
     if (messageText.trim() !== '' && ws.current) {
       ws.current.send(messageText);
       setMessages((prev) => [...prev, { sender: 'You', text: messageText }]);
       setShowLoading(true);  // 답변 생성 중 상태 활성화
-      onMessageSent();  // 상위 컴포넌트에 메시지 전송 상태 전달
+      onMessageSent();
     }
   };
 
-  const scrollToBottom = () => {
-    if (chatMessagesRef.current) {
-      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+  const scrollToPreviousBotMessage = () => {
+    const botMessages = document.querySelectorAll('.chat-message.bot');
+    if (botMessages.length > 0 && botMessagesRef.current) {
+      const currentBotMessage = botMessagesRef.current.currentBotMessage;
+      const previousBotMessage = botMessages[Math.max(currentBotMessage - 1, 0)];
+      previousBotMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      botMessagesRef.current.currentBotMessage = Math.max(currentBotMessage - 1, 0);
+    }
+  };
+
+  const scrollToNextBotMessage = () => {
+    const botMessages = document.querySelectorAll('.chat-message.bot');
+    if (botMessages.length > 0 && botMessagesRef.current) {
+      const currentBotMessage = botMessagesRef.current.currentBotMessage;
+      const nextBotMessage = botMessages[Math.min(currentBotMessage + 1, botMessages.length - 1)];
+      nextBotMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      botMessagesRef.current.currentBotMessage = Math.min(currentBotMessage + 1, botMessages.length - 1);
     }
   };
 
@@ -71,25 +83,43 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
     <div className="chat-container">
       <div className="chat-messages" ref={chatMessagesRef}>
         {messages.map((msg, index) => (
-          <div key={index} className={`chat-message ${msg.sender === 'You' ? 'user' : 'bot'}`}>
+          <div
+            key={index}
+            className={`chat-message ${msg.sender === 'You' ? 'user' : 'bot'}`}
+            ref={index === messages.length - 1 ? lastMessageRef : null}  // 마지막 메시지에 ref 할당
+          >
             {msg.sender === 'You' ? (
               <div className="message user-message">{msg.text}</div>
             ) : (
               <div className="message bot-message">
                 <img src="/images/bot_color.svg" alt="Bot Avatar" className="bot-avatar" />
-                {/* react-markdown과 rehypeRaw, remarkGfm으로 Markdown과 HTML 동시 처리 */}
                 <div className="message-content" style={{ whiteSpace: 'pre-line' }}>
-                  <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]} // GitHub Flavored Markdown 처리
-                    rehypePlugins={[rehypeRaw]}  // HTML 태그도 함께 처리
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}  // GitHub Flavored Markdown(GFM)을 지원하기 위한 플러그인 설정
+                    rehypePlugins={[rehypeRaw]}  // HTML 태그를 직접 처리할 수 있게 해주는 rehypeRaw 플러그인 추가
+                    components={{
+                      h1: ({ children, ...props }) => <h1 className="heading-1" {...props}>{children}</h1>,  
+                      // h1 태그에 "heading-1" 클래스를 추가하여 스타일을 커스터마이징
+                      h2: ({ children, ...props }) => <h2 className="heading-2" {...props}>{children}</h2>,  
+                      // h2 태그에 "heading-2" 클래스를 추가하여 스타일을 커스터마이징
+                      h3: ({ children, ...props }) => <h3 className="heading-3" {...props}>{children}</h3>,  
+                      // h3 태그에 "heading-3" 클래스를 추가하여 스타일을 커스터마이징
+                      h4: ({ children, ...props }) => <h4 className="heading-4" {...props}>{children}</h4>,  
+                      // h4 태그에 "heading-4" 클래스를 추가하여 스타일을 커스터마이징
+                      p: ({ children, ...props }) => <p className="paragraph" {...props}>{children}</p>,  
+                      // p 태그에 "paragraph" 클래스를 추가하여 스타일을 커스터마이징
+                      strong: ({ children, ...props }) => <strong className="bold-text" {...props}>{children}</strong>  
+                      // strong 태그에 "bold-text" 클래스를 추가하여 스타일을 커스터마이징
+                    }}
                   >
-                    {msg.text}
+                    {msg.text}{/* // 실제로 변환할 Markdown 형식의 텍스트 */}
                   </ReactMarkdown>
                 </div>
               </div>
             )}
           </div>
         ))}
+
         {/* // 로딩 표시 JSX 추가 */}
         <div className={`loading-container ${showLoading ? 'show' : ''}`}>
           <span>답변 생성 중</span>
@@ -99,6 +129,18 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
             <img src="/images/bot_white.svg" className="donut" alt="loading donut 3" />
           </div>
         </div>
+      </div>
+
+      <div className='scroll-button-list'>
+        <span
+          className="scroll-button-up"
+          onClick={scrollToPreviousBotMessage}
+        >△</span>
+
+        <span
+          className="scroll-button-down"
+          onClick={scrollToNextBotMessage}
+        >▽</span>
       </div>
 
       <ChatPrompt onSendMessage={sendMessage} />
