@@ -1,6 +1,9 @@
 "use client";  // 클라이언트 컴포넌트로 설정
 import { useState, useEffect, useRef } from 'react';
 import '../styles/chat.css';  // CSS 파일 임포트
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm'; // GitHub Flavored Markdown 지원
 import ChatPrompt from './Prompt';  // ChatPrompt 컴포넌트 임포트
 
 // Chat.tsx
@@ -11,49 +14,52 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
   const [showLoading, setShowLoading] = useState(false);  // 답변 생성 중 상태
 
   // WebSocket 메시지 수신 처리
-useEffect(() => {
-  ws.current = new WebSocket('ws://localhost:8080/ws-chat');
+  useEffect(() => {
+    ws.current = new WebSocket('ws://localhost:8080/ws-chat');
 
-  ws.current.onopen = () => {
-    console.log('Connected to WebSocket');
-  };
+    ws.current.onopen = () => {
+      console.log('Connected to WebSocket');
+    };
 
-  ws.current.onmessage = (event) => {
-    console.log('Message received from WebSocket: ', event.data);
+    ws.current.onmessage = (event) => {
+      console.log('Message received from WebSocket: ', event.data);
 
-    // 2000ms 동안 로딩 상태를 유지한 후 메시지를 표시
-    setTimeout(() => {
-      setShowLoading(false);  // 답변 생성 중 상태 비활성화
-      // 줄바꿈 처리 (event.data의 줄바꿈을 <br />로 변환)
-      const formattedMessage = event.data.replace(/\n/g, '<br />');
-      setMessages((prev) => [...prev, { sender: 'Bot', text: formattedMessage }]);
-      scrollToBottom();
-    }, 2000);
-  };
+      // 2000ms 동안 로딩 상태를 유지한 후 메시지를 표시
+      setTimeout(() => {
+        setShowLoading(false);  // 답변 생성 중 상태 비활성화
+        // 줄바꿈 처리 (event.data의 줄바꿈을 <br />로 변환)
+        const formattedMessage = event.data.replace(/\n/g, '<br />');
+        setMessages((prev) => [...prev, { sender: 'Bot', text: formattedMessage }]);
+      }, 2000);
+    };
 
-  ws.current.onclose = (event) => {
-    console.log('WebSocket connection closed: ', event);
-  };
+    ws.current.onclose = (event) => {
+      console.log('WebSocket connection closed: ', event);
+    };
 
-  ws.current.onerror = (error) => {
-    console.error('WebSocket error: ', error);
-  };
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error: ', error);
+    };
 
-  return () => {
-    ws.current?.close(); // 컴포넌트가 언마운트될 때 WebSocket을 닫음
-  };
-}, []);
+    return () => {
+      ws.current?.close(); // 컴포넌트가 언마운트될 때 WebSocket을 닫음
+    };
+  }, []);
+
+  // messages가 업데이트될 때마다 스크롤을 맨 아래로 이동
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, showLoading]);
 
   // 메시지 전송 함수 수정
-const sendMessage = (messageText: string) => {
-  if (messageText.trim() !== '' && ws.current) {
-    ws.current.send(messageText);
-    setMessages((prev) => [...prev, { sender: 'You', text: messageText }]);
-    scrollToBottom();
-    setShowLoading(true);  // 답변 생성 중 상태 활성화
-    onMessageSent();  // 상위 컴포넌트에 메시지 전송 상태 전달
-  }
-};
+  const sendMessage = (messageText: string) => {
+    if (messageText.trim() !== '' && ws.current) {
+      ws.current.send(messageText);
+      setMessages((prev) => [...prev, { sender: 'You', text: messageText }]);
+      setShowLoading(true);  // 답변 생성 중 상태 활성화
+      onMessageSent();  // 상위 컴포넌트에 메시지 전송 상태 전달
+    }
+  };
 
   const scrollToBottom = () => {
     if (chatMessagesRef.current) {
@@ -71,7 +77,15 @@ const sendMessage = (messageText: string) => {
             ) : (
               <div className="message bot-message">
                 <img src="/images/bot_color.svg" alt="Bot Avatar" className="bot-avatar" />
-                <span>{msg.text}</span>
+                {/* react-markdown과 rehypeRaw, remarkGfm으로 Markdown과 HTML 동시 처리 */}
+                <div className="message-content" style={{ whiteSpace: 'pre-line' }}>
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]} // GitHub Flavored Markdown 처리
+                    rehypePlugins={[rehypeRaw]}  // HTML 태그도 함께 처리
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
+                </div>
               </div>
             )}
           </div>
@@ -91,4 +105,3 @@ const sendMessage = (messageText: string) => {
     </div>
   );
 }
-
