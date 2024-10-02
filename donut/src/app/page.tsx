@@ -1,9 +1,17 @@
-// app/page.tsx (또는 pages/index.tsx)
+// page.tsx
+"use client";
 
-import './styles/main.css';  // CSS 파일을 임포트
-import Chat from './components/Chat';  // Chat 컴포넌트 임포트
+import './styles/main.css';
+import Chat from './components/Chat';
+import { useState } from 'react';
 
 export default function Home() {
+  const [isMessageSent, setIsMessageSent] = useState(false);
+
+  // 메시지 전송 시 호출되는 함수
+  const handleMessageSent = () => {
+    setIsMessageSent(true);
+  };
 
   return (
     <div className="home-page">
@@ -11,10 +19,11 @@ export default function Home() {
         <div className="search-icon">
           <img src="/images/main_logo.svg" alt="Search Icon" />
         </div>
-        <h1>나만의 원티드 클래스, DONUT</h1>        
+        <h1>나만의 원티드 클래스, DONUT</h1>
       </header>
 
-      <section className="suggestions">
+      {/* <section> 태그에 조건부 렌더링 적용 */}
+      <section className="suggestions" style={{ display: isMessageSent ? 'none' : 'block' }}>
         <h2>이런 주제는 어때요?</h2>
         <div className="topic-buttons">
           <button className="topic">물리학에 대해 배우고 싶어.</button>
@@ -23,7 +32,7 @@ export default function Home() {
       </section>
 
       {/* Chat 컴포넌트 */}
-      <Chat />
+      <Chat onMessageSent={handleMessageSent} />
     </div>
   );
 }

@@ -1,49 +1,63 @@
 "use client";  // 클라이언트 컴포넌트로 설정
 import { useState, useEffect, useRef } from 'react';
 import '../styles/chat.css';  // CSS 파일 임포트
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm'; // GitHub Flavored Markdown 지원
 import ChatPrompt from './Prompt';  // ChatPrompt 컴포넌트 임포트
 
-export default function Chat() {
+// Chat.tsx
+export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
-  const [isMessageSent, setIsMessageSent] = useState(false);  // 메시지 전송 여부 상태
   const ws = useRef<WebSocket | null>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const [showLoading, setShowLoading] = useState(false);  // 답변 생성 중 상태
 
+  // WebSocket 메시지 수신 처리
   useEffect(() => {
-    // WebSocket 연결
-    ws.current = new WebSocket('ws://localhost:8080/ws-chat');  // 실제 WebSocket URL로 교체
+    ws.current = new WebSocket('ws://localhost:8080/ws-chat');
 
     ws.current.onopen = () => {
       console.log('Connected to WebSocket');
     };
 
     ws.current.onmessage = (event) => {
-      setMessages((prev) => [...prev, { sender: 'Bot', text: event.data }]);
-      scrollToBottom();
+      console.log('Message received from WebSocket: ', event.data);
+
+      // 2000ms 동안 로딩 상태를 유지한 후 메시지를 표시
+      setTimeout(() => {
+        setShowLoading(false);  // 답변 생성 중 상태 비활성화
+        // 줄바꿈 처리 (event.data의 줄바꿈을 <br />로 변환)
+        const formattedMessage = event.data.replace(/\n/g, '<br />');
+        setMessages((prev) => [...prev, { sender: 'Bot', text: formattedMessage }]);
+      }, 2000);
     };
 
-    ws.current.onclose = () => {
-      console.log('WebSocket connection closed');
+    ws.current.onclose = (event) => {
+      console.log('WebSocket connection closed: ', event);
     };
 
     ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error('WebSocket error: ', error);
     };
 
     return () => {
-      ws.current?.close();
+      ws.current?.close(); // 컴포넌트가 언마운트될 때 WebSocket을 닫음
     };
   }, []);
 
+  // messages가 업데이트될 때마다 스크롤을 맨 아래로 이동
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, showLoading]);
+
+  // 메시지 전송 함수 수정
   const sendMessage = (messageText: string) => {
     if (messageText.trim() !== '' && ws.current) {
-      // WebSocket을 통해 메시지 전송
       ws.current.send(messageText);
-
-      // 사용자가 보낸 메시지를 로컬에서 바로 보여줌
       setMessages((prev) => [...prev, { sender: 'You', text: messageText }]);
-      scrollToBottom();
-      setIsMessageSent(true);  // 메시지가 전송되었음을 표시
+      setShowLoading(true);  // 답변 생성 중 상태 활성화
+      onMessageSent();  // 상위 컴포넌트에 메시지 전송 상태 전달
     }
   };
 
@@ -55,28 +69,38 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
-      <div 
-        className="chat-messages" 
-        ref={chatMessagesRef} 
-        style={{ minHeight: isMessageSent ? '400px' : '0' }}  // 메시지 전송 여부에 따라 높이 변경
-      >
+      <div className="chat-messages" ref={chatMessagesRef}>
         {messages.map((msg, index) => (
           <div key={index} className={`chat-message ${msg.sender === 'You' ? 'user' : 'bot'}`}>
             {msg.sender === 'You' ? (
-              <div className="message user-message">
-                {msg.text}
-              </div>
+              <div className="message user-message">{msg.text}</div>
             ) : (
               <div className="message bot-message">
                 <img src="/images/bot_color.svg" alt="Bot Avatar" className="bot-avatar" />
-                <span>{msg.text}</span>
+                {/* react-markdown과 rehypeRaw, remarkGfm으로 Markdown과 HTML 동시 처리 */}
+                <div className="message-content" style={{ whiteSpace: 'pre-line' }}>
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]} // GitHub Flavored Markdown 처리
+                    rehypePlugins={[rehypeRaw]}  // HTML 태그도 함께 처리
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
+                </div>
               </div>
             )}
           </div>
         ))}
+        {/* // 로딩 표시 JSX 추가 */}
+        <div className={`loading-container ${showLoading ? 'show' : ''}`}>
+          <span>답변 생성 중</span>
+          <div className="loading-donuts">
+            <img src="/images/bot_white.svg" className="donut" alt="loading donut 1" />
+            <img src="/images/bot_white.svg" className="donut" alt="loading donut 2" />
+            <img src="/images/bot_white.svg" className="donut" alt="loading donut 3" />
+          </div>
+        </div>
       </div>
 
-      {/* ChatPrompt 컴포넌트 사용 */}
       <ChatPrompt onSendMessage={sendMessage} />
     </div>
   );

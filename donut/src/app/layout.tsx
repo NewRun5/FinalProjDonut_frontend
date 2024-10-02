@@ -17,6 +17,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <title>EduCraft DONUT</title>
+        {/* Favicon 설정 */}
+        <link rel="icon" href="/images/main_logo.svg" type="image/svg+xml" />
         <meta name="description" content="DONUT 학습 플랫폼" />
       </head>
       <body>

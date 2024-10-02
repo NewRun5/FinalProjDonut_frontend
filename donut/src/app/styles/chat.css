@@ -114,3 +114,65 @@
 .chat-input button:hover {
   background-color: #0056b3;
 }
+
+/* 답변 생성 중 */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: fit-content;
+  padding: 15px;
+  margin-top: 10px;
+  opacity: 0;  /* 처음에는 보이지 않음 */
+  background-color: var(--main);  
+  border-radius: 20px;
+  transition: opacity 1000ms ease-in-out;
+}
+
+.loading-container.show {
+  opacity: 1;  /* 트리거가 발생하면 표시 */
+}
+
+.loading-container span {
+  margin-right: 10px;
+  color: #fff;
+}
+
+.loading-donuts {
+  display: flex;
+  gap: 5px;
+}
+
+.donut {
+  width: 24px;
+  height: 24px;
+  opacity: 1; /* 강제 표시 */
+  animation: fade 1.4s infinite ease-in-out;
+}
+
+.donut:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.donut:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.donut:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+    transform: translateY(2px); /* Y축 아래로 이동 */
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0px);  /* Y축 원래 위치 */
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2px); /* Y축 위로 살짝 이동 */
+  }
+}
