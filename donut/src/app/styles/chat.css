@@ -1,5 +1,6 @@
 /* styles/chat.css */
 .chat-container {
+  position: relative;
   max-width: 100%;
   background-color: #fff;
   display: flex;
@@ -54,6 +55,8 @@
   display: flex;
   align-items: flex-start;
   margin: 20px 0;
+  word-wrap: break-word;
+  position: relative;
 }
 
 .message.bot-message span {
@@ -175,4 +178,51 @@
     opacity: 0;
     transform: translateY(-2px); /* Y축 위로 살짝 이동 */
   }
+}
+
+/* 이전/다음 대화 내용 이동 버튼 */
+.scroll-button-list {position: absolute; top: 0; right: 30px;display: flex; justify-content: center; align-items: center; flex-direction: column; width:50px; height:50px; padding: 10px; border-radius: 50%; border:1px solid var(--main); background-color: #fff;}
+.scroll-button-list span {color: var(--main); cursor: pointer;}
+/* .scroll-button-up {}
+.scroll-button-down {} */
+
+.message-content .heading-1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0.3em 0;  /* 줄임 */
+}
+
+.message-content .heading-2 {
+  font-size: 1.75em;
+  font-weight: bold;
+  margin: 0.3em 0;  /* 줄임 */
+}
+
+.message-content .heading-3 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0.3em 0;  /* 줄임 */
+}
+
+.message-content .heading-4 {
+  font-size: 1.25em;
+  font-weight: bold;
+  margin: 0.3em 0;  /* 줄임 */
+}
+
+.message-content .paragraph {
+  margin: 0.3em 0;  /* 줄임 */
+}
+
+/* 추가: 전체 message-content의 기본 간격 조정 */
+.message-content {
+  line-height: 1.4;  /* 줄 간격 조정 */
+}
+
+/* 추가: 연속된 헤딩 태그 사이의 간격 조정 */
+.message-content h1 + h1,
+.message-content h2 + h2,
+.message-content h3 + h3,
+.message-content h4 + h4 {
+  margin-top: 0.2em;  /* 같은 레벨의 헤딩이 연속될 때의 간격 */
 }
