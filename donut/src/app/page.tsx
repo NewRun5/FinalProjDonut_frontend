@@ -1,6 +1,7 @@
 // page.tsx
 "use client";
 
+import './globals.css';
 import './styles/main.css';
 import Chat from './components/chat/Chat';
 import { useState } from 'react';

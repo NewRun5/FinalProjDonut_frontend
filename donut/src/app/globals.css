@@ -76,3 +76,5 @@ button { background: none; outline: none; border: none;}
   height: 100vh;
 }
 
+input{transition: border 300ms ease-in-out;}
+input:focus {outline: none; border: 1px solid var(--point);}
