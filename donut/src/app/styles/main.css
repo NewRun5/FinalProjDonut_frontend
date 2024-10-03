@@ -10,6 +10,9 @@
   text-align: center;
 }
 
+
+header h1 {font-size: 20px; color: var(--main);}
+
 .search-icon {
   display: flex;
   flex-direction: column;
@@ -39,17 +42,8 @@
   border-radius: 20px;
   font-size: 16px;
   cursor: pointer;
+  font-family: 'pretendard', sans-serif;
 }
 
-/* .prompt {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 120px;
-  padding: 20px;
-  background-color: #ffffff;
-  border: 1px solid var(--main);
-  border-radius:120px;
-  box-shadow: 2px 4px 0px var(--point);
-} */
+.suggestions {font-size: 20px;}
 
