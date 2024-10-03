@@ -1,0 +1,7 @@
+.left-panel {
+  width: 50%;  /* 왼쪽 절반의 너비 */
+  padding: 20px;
+  background-color: #f9f9f9;
+  overflow-y: auto;
+  height: 100vh;
+}

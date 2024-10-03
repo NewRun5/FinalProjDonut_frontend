@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import '../styles/chat.css';
+import './chat.css';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';  // HTML 태그를 처리하는 플러그인
 import remarkGfm from 'remark-gfm';
-import ChatPrompt from './Prompt';
+import ChatPrompt from '../prompt/Prompt';
 
 export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);

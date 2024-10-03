@@ -1,7 +1,7 @@
 // components/prompt.tsx
 "use client";  // 클라이언트 컴포넌트로 설정
 import { useState, useRef, useEffect } from 'react';
-import '../styles/prompt.css';  // 프롬프트 관련 CSS 파일 임포트
+import './prompt.css';  // 프롬프트 관련 CSS 파일 임포트
 
 interface ChatPromptProps {
   onSendMessage: (messageText: string) => void;  // 메시지 전송을 위한 prop

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import '../styles/sidebar.css';  // Sidebar 관련 스타일을 가져옴
+import './sidebar.css';  // Sidebar 관련 스타일을 가져옴
 
 export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) => void }) {
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -35,6 +35,11 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
                 <h2 className="profile-name">도넛또넛님</h2>
               </div>
             </Link>
+            {/* 학습 하러 가기 링크 */}
+            <Link href="/study">
+              <span className="learn-link">학습 하러 가기</span>
+            </Link>
+
           </div>
           <div>
             <Link href="#" className="archive_btn">

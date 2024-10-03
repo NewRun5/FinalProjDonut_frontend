@@ -2,7 +2,7 @@
 "use client";
 
 import './styles/main.css';
-import Chat from './components/Chat';
+import Chat from './components/chat/Chat';
 import { useState } from 'react';
 
 export default function Home() {
