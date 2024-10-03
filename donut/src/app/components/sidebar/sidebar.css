@@ -45,7 +45,7 @@
 .sidebar-nav li {margin: 20px 0;}
 
 .archive_btn {display: flex; align-items: center; padding-bottom: 20px;}
-.archive_btn h2 {padding-left: 10px;}
+.archive_btn h2 {padding-left: 10px; color: #ffffff; font-size: 16px;}
 
 .toggle-button {
   background: none;
@@ -106,6 +106,8 @@
 
 .profile-name {
   margin-left: 10px;
+  color: #ffffff;
+  font-size: 18px;
 }
 
 /* transition 효과 추가 */
@@ -113,3 +115,6 @@
 .collapsed-icons {
   transition: all 0.3s ease;
 }
+
+.learn-link {color: #ffffff;
+  font-size: 16px;}
