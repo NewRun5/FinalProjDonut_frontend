@@ -1,0 +1,91 @@
+/* src/app/components/login/Login.module.css */
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.loginBox {
+  width: 500px;
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.logo {
+  width: 50px;
+  margin-bottom: 20px;
+}
+
+.title {
+  padding-bottom: 20px;
+  font-size: 2rem;
+  color: var(--main);
+}
+
+.inputContainer {
+  margin-bottom: 20px;
+}
+
+.inputField {
+  width: 100%;
+  max-width: 360px;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  font-size: 1rem;
+  line-height: 40px;
+}
+
+.rememberContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+}
+
+.rememberContainer input {
+  margin-right: 10px;
+}
+
+.loginButton {
+  width: 100%;
+  max-width: 360px;
+  height: 40px;
+  margin: 20px 0;
+  background-color: var(--main);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 40px;
+}
+
+.helpLinks {
+  width: 100%;
+  padding: 0 40px;
+  text-align: right;
+  margin-top: 20px;
+}
+
+.helpLinks a {
+  color: var(--main);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.helpLinks a:hover {
+  text-decoration: underline;
+}
+
+.signUp_txt {font-size: 14px; color: var(--point);}
+.signUp_box {width: 100%; max-width: 360px; margin: 0 auto; padding-top: 20px; border-top: 1px solid var(--main);}
+.signUp_box .helpLinks {height: 40px; text-align: center; border: 1px solid var(--main); border-radius: 30px; line-height: 40px; }
+.signUp_box .helpLinks a {font-size: 16px; font-weight: 600;}
