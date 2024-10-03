@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';  // HTML 태그를 처리하는 플러그인
 import remarkGfm from 'remark-gfm';
 import ChatPrompt from '../prompt/Prompt';
+import { jsPDF } from 'jspdf';  // PDF 생성 라이브러리
 
 export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
@@ -79,6 +80,18 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
     }
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("메시지가 클립보드에 복사되었습니다!");
+    });
+  };
+
+  const exportToPDF = (text: string) => {
+    const doc = new jsPDF();
+    doc.text(text, 10, 10);
+    doc.save("bot_message.pdf");
+  };
+
   return (
     <div className="chat-container">
       <div className="chat-messages" ref={chatMessagesRef}>
@@ -99,28 +112,27 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
                     rehypePlugins={[rehypeRaw]}  // HTML 태그를 직접 처리할 수 있게 해주는 rehypeRaw 플러그인 추가
                     components={{
                       h1: ({ children, ...props }) => <h1 className="heading-1" {...props}>{children}</h1>,  
-                      // h1 태그에 "heading-1" 클래스를 추가하여 스타일을 커스터마이징
                       h2: ({ children, ...props }) => <h2 className="heading-2" {...props}>{children}</h2>,  
-                      // h2 태그에 "heading-2" 클래스를 추가하여 스타일을 커스터마이징
                       h3: ({ children, ...props }) => <h3 className="heading-3" {...props}>{children}</h3>,  
-                      // h3 태그에 "heading-3" 클래스를 추가하여 스타일을 커스터마이징
                       h4: ({ children, ...props }) => <h4 className="heading-4" {...props}>{children}</h4>,  
-                      // h4 태그에 "heading-4" 클래스를 추가하여 스타일을 커스터마이징
                       p: ({ children, ...props }) => <p className="paragraph" {...props}>{children}</p>,  
-                      // p 태그에 "paragraph" 클래스를 추가하여 스타일을 커스터마이징
                       strong: ({ children, ...props }) => <strong className="bold-text" {...props}>{children}</strong>  
-                      // strong 태그에 "bold-text" 클래스를 추가하여 스타일을 커스터마이징
                     }}
                   >
-                    {msg.text}{/* // 실제로 변환할 Markdown 형식의 텍스트 */}
+                    {msg.text}
                   </ReactMarkdown>
+                </div>
+                {/* 복사 및 PDF 내보내기 버튼 추가 */}
+                <div className="message-actions">
+                  <button onClick={() => copyToClipboard(msg.text)}>복사</button>
+                  <button onClick={() => exportToPDF(msg.text)}>PDF로 내보내기</button>
                 </div>
               </div>
             )}
           </div>
         ))}
 
-        {/* // 로딩 표시 JSX 추가 */}
+        {/* 로딩 표시 JSX 추가 */}
         <div className={`loading-container ${showLoading ? 'show' : ''}`}>
           <span>답변 생성 중</span>
           <div className="loading-donuts">
