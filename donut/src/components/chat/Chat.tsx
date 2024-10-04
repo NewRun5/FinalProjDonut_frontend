@@ -1,3 +1,5 @@
+"use Client";
+
 import { useState, useEffect, useRef } from 'react';
 import './chat.css';
 import ReactMarkdown from 'react-markdown';
