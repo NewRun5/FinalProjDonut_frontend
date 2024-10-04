@@ -201,10 +201,28 @@
 }
 
 /* 이전/다음 대화 내용 이동 버튼 */
-.scroll-button-list {position: absolute; top: 0; right: 30px;display: flex; justify-content: center; align-items: center; flex-direction: column; width:50px; height:50px; padding: 10px; border-radius: 50%; border:1px solid var(--main); background-color: #fff;}
+/* .scroll-button-list {position: absolute; top: 30px; right: 30px;display: flex; justify-content: center; align-items: center; flex-direction: column; width:50px; height:50px; padding: 10px; border-radius: 50%; border:1px solid var(--main); background-color: #fff;} */
 .scroll-button-list span {color: var(--main); cursor: pointer;}
-/* .scroll-button-up {}
-.scroll-button-down {} */
+.scroll-button-list {
+  position: absolute;
+  bottom: 130px;
+  right: 30px;
+  display: none;  /* 처음에 숨김 */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 50px;
+  height: 50px;
+  padding: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--main);
+  background-color: #fff;
+}
+
+.scroll-button-list.visible {
+  display: flex;  /* 활성화될 때만 보이도록 */
+}
+
 
 .message-content .heading-1 {
   font-size: 2em;
@@ -295,3 +313,5 @@
   width: 20px;
   height: 20px;
 }
+
+.paragraph img {width: 500px;}
