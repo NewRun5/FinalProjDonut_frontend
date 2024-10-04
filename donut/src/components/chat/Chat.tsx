@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import './chat.css';
 import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';  // HTML 태그를 처리하는 플러그인
+import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import ChatPrompt from '../prompt/Prompt';
+import { jsPDF } from 'jspdf';  // PDF 생성 라이브러리
 
 export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([]);
@@ -14,6 +15,7 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
   const lastMessageRef = useRef<HTMLDivElement | null>(null);  // 마지막 메시지에 대한 참조
   const botMessagesRef = useRef({ currentBotMessage: 0 });
   const [showLoading, setShowLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);  // 모달 상태
 
   // WebSocket 메시지 수신 처리
   useEffect(() => {
@@ -81,8 +83,100 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
     }
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setIsModalVisible(true);  // 모달 표시
+      setTimeout(() => {
+        setIsModalVisible(false);  // 2초 후에 모달 숨김
+      }, 2000);
+    });
+  };
+
+  // 한글 PDF 저장 기능
+  const exportToPDF = async (text: string) => {
+    const doc = new jsPDF();
+  
+    // 폰트를 동적으로 불러와서 jsPDF에 추가
+    const response = await fetch('/fonts/NotoSans.txt'); // public 폴더 내의 폰트 파일
+    const base64Font = await response.text(); // Base64 텍스트 파일 읽기
+    
+    // jsPDF에 한글 폰트 추가
+    doc.addFileToVFS('NotoSansKR-Regular.ttf', base64Font);
+    doc.addFont('NotoSansKR-Regular.ttf', 'NotoSans', 'normal');
+    doc.setFont('NotoSans');
+    doc.setFontSize(12);
+  
+    // 텍스트를 줄 단위로 분할
+    const lines = text.split('\n');
+    let yPosition = 20;  // 초기 y 위치
+    const pageWidth = doc.internal.pageSize.width; // 페이지 너비
+    const margin = 10;  // 페이지 좌우 여백
+    const maxLineWidth = pageWidth - margin * 2;  // 텍스트를 넣을 최대 너비
+  
+    lines.forEach((line) => {
+      if (line.startsWith('### ')) {
+        doc.setFontSize(14);  // 3단계 제목
+        doc.setFont("NotoSans", "bold");
+        const splitText = doc.splitTextToSize(line.replace('### ', ''), maxLineWidth); // 줄바꿈 처리
+        doc.text(splitText, margin, yPosition);
+        yPosition += splitText.length * 10;  // 줄 수에 맞게 yPosition 증가
+      } else if (line.startsWith('## ')) {
+        doc.setFontSize(16);  // 2단계 제목
+        doc.setFont("NotoSans", "bold");
+        const splitText = doc.splitTextToSize(line.replace('## ', ''), maxLineWidth); // 줄바꿈 처리
+        doc.text(splitText, margin, yPosition);
+        yPosition += splitText.length * 12;
+      } else if (line.startsWith('# ')) {
+        doc.setFontSize(18);  // 1단계 제목
+        doc.setFont("NotoSans", "bold");
+        const splitText = doc.splitTextToSize(line.replace('# ', ''), maxLineWidth); // 줄바꿈 처리
+        doc.text(splitText, margin, yPosition);
+        yPosition += splitText.length * 14;
+      } else if (line.includes('*')) {
+        let currentX = margin;
+        const parts = line.split('*');
+        parts.forEach((part, index) => {
+          const splitText = doc.splitTextToSize(part, maxLineWidth); // 줄바꿈 처리
+          if (index % 2 === 1) {
+            // *로 감싸진 부분은 굵게 설정
+            doc.setFont("NotoSans", "bold");
+          } else {
+            // 일반 텍스트
+            doc.setFont("NotoSans", "normal");
+          }
+          splitText.forEach((textLine) => {
+            if (currentX + doc.getTextWidth(textLine) > maxLineWidth) {
+              yPosition += 10;
+              currentX = margin;
+            }
+            doc.text(textLine, currentX, yPosition);
+            currentX += doc.getTextWidth(textLine);
+          });
+        });
+        yPosition += 10;  // 줄 바꿈
+      } else {
+        doc.setFontSize(12);
+        doc.setFont("NotoSans", "normal");
+        const splitText = doc.splitTextToSize(line, maxLineWidth); // 줄바꿈 처리
+        doc.text(splitText, margin, yPosition);
+        yPosition += splitText.length * 10;  // 줄 수에 맞게 yPosition 증가
+      }
+    });
+  
+    // PDF로 저장
+    doc.save("bot_message.pdf");
+  };
+  
+
   return (
     <div className="chat-container">
+      {/* 메시지 모달 창 */}
+      {isModalVisible && (
+        <div className="modal">
+          <span>클립보드에 복사되었습니다.</span>
+        </div>
+      )}
+
       <div className="chat-messages" ref={chatMessagesRef}>
         {messages.map((msg, index) => (
           <div
@@ -95,34 +189,35 @@ export default function Chat({ onMessageSent }: { onMessageSent: () => void }) {
             ) : (
               <div className="message bot-message">
                 <img src="/images/bot_color.svg" alt="Bot Avatar" className="bot-avatar" />
-                <div className="message-content" style={{ whiteSpace: 'pre-line' }}>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}  // GitHub Flavored Markdown(GFM)을 지원하기 위한 플러그인 설정
-                    rehypePlugins={[rehypeRaw]}  // HTML 태그를 직접 처리할 수 있게 해주는 rehypeRaw 플러그인 추가
-                    components={{
-                      h1: ({ children, ...props }) => <h1 className="heading-1" {...props}>{children}</h1>,  
-                      // h1 태그에 "heading-1" 클래스를 추가하여 스타일을 커스터마이징
-                      h2: ({ children, ...props }) => <h2 className="heading-2" {...props}>{children}</h2>,  
-                      // h2 태그에 "heading-2" 클래스를 추가하여 스타일을 커스터마이징
-                      h3: ({ children, ...props }) => <h3 className="heading-3" {...props}>{children}</h3>,  
-                      // h3 태그에 "heading-3" 클래스를 추가하여 스타일을 커스터마이징
-                      h4: ({ children, ...props }) => <h4 className="heading-4" {...props}>{children}</h4>,  
-                      // h4 태그에 "heading-4" 클래스를 추가하여 스타일을 커스터마이징
-                      p: ({ children, ...props }) => <p className="paragraph" {...props}>{children}</p>,  
-                      // p 태그에 "paragraph" 클래스를 추가하여 스타일을 커스터마이징
-                      strong: ({ children, ...props }) => <strong className="bold-text" {...props}>{children}</strong>  
-                      // strong 태그에 "bold-text" 클래스를 추가하여 스타일을 커스터마이징
-                    }}
-                  >
-                    {msg.text}{/* // 실제로 변환할 Markdown 형식의 텍스트 */}
-                  </ReactMarkdown>
+                <div className="message-box">
+                  <div className="message-content" style={{ whiteSpace: 'pre-line' }}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}  // GitHub Flavored Markdown(GFM)을 지원하기 위한 플러그인 설정
+                      rehypePlugins={[rehypeRaw]}  // HTML 태그를 직접 처리할 수 있게 해주는 rehypeRaw 플러그인 추가
+                      components={{
+                        h1: ({ children, ...props }) => <h1 className="heading-1" {...props}>{children}</h1>,  
+                        h2: ({ children, ...props }) => <h2 className="heading-2" {...props}>{children}</h2>,  
+                        h3: ({ children, ...props }) => <h3 className="heading-3" {...props}>{children}</h3>,  
+                        h4: ({ children, ...props }) => <h4 className="heading-4" {...props}>{children}</h4>,  
+                        p: ({ children, ...props }) => <p className="paragraph" {...props}>{children}</p>,  
+                        strong: ({ children, ...props }) => <strong className="bold-text" {...props}>{children}</strong>  
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  </div>
+                  {/* 복사 및 PDF 내보내기 버튼 추가 */}
+                  <div className="message-actions">
+                    <span onClick={() => copyToClipboard(msg.text)}> <img src="./images/copy.svg" alt="copy icon" /></span>
+                    <span onClick={() => exportToPDF(msg.text)}> <img src="./images/export.svg" alt="export document icon" /></span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         ))}
 
-        {/* // 로딩 표시 JSX 추가 */}
+        {/* 로딩 표시 JSX 추가 */}
         <div className={`loading-container ${showLoading ? 'show' : ''}`}>
           <span>답변 생성 중</span>
           <div className="loading-donuts">
