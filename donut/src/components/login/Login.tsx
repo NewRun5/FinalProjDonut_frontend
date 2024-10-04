@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import Modal from '../modal/Modal';  // Modal 컴포넌트 임포트
 import { useRouter } from 'next/navigation';  // 메인 페이지 이동을 위한 next.js router 사용
-import '../../globals.css';
+import '../../styles/globals.css';
 import styles from './Login.module.css';
 
 const dummyData = {

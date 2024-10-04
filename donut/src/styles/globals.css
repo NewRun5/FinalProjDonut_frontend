@@ -55,8 +55,9 @@ button { background: none; outline: none; border: none;}
   min-height: 100vh;
   padding: 20px;
   background-color: #ffffff;
-  transition: margin-left 0.3s ease;  /* 사이드바 크기 전환 효과 */
+  transition: margin-left 0.3s ease;
   position: relative;
+  max-width: calc(100% - 250px); /* 사이드바가 있을 때 너비 조정 */
 }
 
 /* 사이드바가 확장되었을 때 */
@@ -67,6 +68,7 @@ button { background: none; outline: none; border: none;}
 /* 사이드바가 축소되었을 때 */
 .main-content.full {
   margin-left: 20px;  /* 축소된 사이드바의 너비만큼만 공간 확보 */
+  max-width: 100%; /* 전체 화면을 차지 */
 }
 
 
