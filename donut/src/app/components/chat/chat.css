@@ -1,5 +1,5 @@
 /* styles/chat.css */
-.chat-container {
+/* .chat-container {
   position: relative;
   max-width: 100%;
   background-color: #fff;
@@ -7,6 +7,16 @@
   flex-direction: column;
   flex: none;
   margin-top: auto;
+} */
+.chat-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  margin-top: auto;
+  max-width: 100%; /* 화면 너비에 맞게 조정 */
+  padding: 5px;
+  overflow: hidden; /* 넘치는 내용 숨기기 */
 }
 
 .chat-header {
@@ -17,12 +27,22 @@
   font-weight: bold;
 }
 
+/* .chat-messages {
+  flex: 1;
+  padding: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+} */
+
 .chat-messages {
   flex: 1;
   padding: 10px;
   max-height: 400px;
   overflow-y: auto;
+  max-width: 100%; /* 메시지 영역이 넘치지 않도록 */
+  box-sizing: border-box; /* 패딩을 포함한 너비 계산 */
 }
+
 .chat-messages::-webkit-scrollbar {
   width: 16px; /* 스크롤바 너비 */
   height: 16px; /* 가로 스크롤바 높이 */
@@ -225,4 +245,19 @@
 .message-content h3 + h3,
 .message-content h4 + h4 {
   margin-top: 0.2em;  /* 같은 레벨의 헤딩이 연속될 때의 간격 */
+}
+
+.message.bot-message {
+  display: flex;
+  align-items: flex-start;
+  margin: 20px 0;
+  word-wrap: break-word;
+  position: relative;
+  max-width: 100%; /* 메시지 내용이 넘치지 않도록 */
+}
+
+.message.user-message {
+  max-width: 60%; /* 사용자 메시지 너비 제한 */
+  word-wrap: break-word;
+  align-self: flex-end;
 }

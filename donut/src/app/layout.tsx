@@ -1,6 +1,6 @@
 "use client";
 
-import './globals.css';  // 스타일 파일
+import '../styles/globals.css';  // 스타일 파일
 import Sidebar from './components/sidebar/Sidebar';  // Sidebar 컴포넌트 임포트
 import { useState } from 'react';
 import Head from 'next/head';
