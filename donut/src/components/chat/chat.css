@@ -261,3 +261,37 @@
   word-wrap: break-word;
   align-self: flex-end;
 }
+
+.message-actions { padding-top: 40px;}
+
+.message-actions span {cursor: pointer;}
+
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 40px;
+  line-height: 40px;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 15px 20px;
+  border-radius: 40px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--point);
+  border: 1px solid var(--main); /* 원하는 색상 */
+}
+
+.modal span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal img {
+  width: 20px;
+  height: 20px;
+}
