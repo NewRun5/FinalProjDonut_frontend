@@ -1,4 +1,4 @@
-"use Client";
+"use client";
 
 import { useState, useEffect, useRef } from 'react';
 import './chat.css';
