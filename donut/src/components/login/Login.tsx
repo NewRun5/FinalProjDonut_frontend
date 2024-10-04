@@ -6,11 +6,8 @@ import Modal from '../modal/Modal';  // Modal 컴포넌트 임포트
 import { useRouter } from 'next/navigation';  // 메인 페이지 이동을 위한 next.js router 사용
 import '../../styles/globals.css';
 import styles from './Login.module.css';
+import { login } from '@/graphql/graphqlClient';  // GraphQL 클라이언트 함수 가져오기
 
-const dummyData = {
-  id: "user01",
-  password: "qwer1234"
-};
 
 const Login = () => {
   const [id, setId] = useState('');
@@ -19,21 +16,32 @@ const Login = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();  // next.js의 router 사용
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (id === "") {
       setErrorMessage("아이디를 입력해 주세요.");
       setIsModalOpen(true);
     } else if (password === "") {
       setErrorMessage("비밀번호를 입력해 주세요.");
       setIsModalOpen(true);
-    } else if (id !== dummyData.id || password !== dummyData.password) {
-      setErrorMessage("아이디 또는 비밀번호를 다시 확인해주세요.");
+      return;
+    }
+    // GraphQL 요청을 통해 백엔드로 로그인 시도
+    try {
+      const result = await login(id, password);
+      if (result.login) {
+        // 로그인 성공 시 메인 페이지로 이동
+        router.push('/');
+      } else {
+        setErrorMessage('아이디 또는 비밀번호를 다시 확인해주세요.');
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorMessage('서버와의 통신 중 오류가 발생했습니다.');
       setIsModalOpen(true);
-    } else {
-      // 로그인 성공 시 메인 페이지로 이동
-      router.push('/');
     }
   };
+
 
   const closeModal = () => {
     setIsModalOpen(false);
