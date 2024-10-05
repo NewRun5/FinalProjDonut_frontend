@@ -6,15 +6,16 @@ interface ModalProps {
   title: string;      // h2 태그의 제목을 위한 새로운 프로퍼티
   message: string;    // 모달에 표시할 메시지
   onClose: () => void; // 모달을 닫는 함수
+  icon: string;       // 아이콘 경로를 동적으로 받음
 }
 
-const Modal: React.FC<ModalProps> = ({ title, message, onClose }) => {
+const Modal: React.FC<ModalProps> = ({ title, message, onClose, icon }) => {
   return (
     <div className="modalBackground">
       <div className="modalContent">
         <div className="modalIcon">
-          <img src="./images/icon_group_modal_bang.svg" alt="bang icon" />
-        </div>  {/* 아이콘 */}
+          <img src={icon} alt="modal icon" />  {/* 아이콘 경로를 동적으로 사용 */}
+        </div>
         <h2>{title}</h2>
         <p>{message}</p>
         <button className="modalButton" onClick={onClose}>확인</button>
