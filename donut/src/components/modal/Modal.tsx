@@ -6,10 +6,11 @@ interface ModalProps {
   title: string;      // h2 태그의 제목을 위한 새로운 프로퍼티
   message: string;    // 모달에 표시할 메시지
   onClose: () => void; // 모달을 닫는 함수
+  onConfirm: () => void;  // 확인 버튼 클릭 시 실행할 함수
   icon: string;       // 아이콘 경로를 동적으로 받음
 }
 
-const Modal: React.FC<ModalProps> = ({ title, message, onClose, icon }) => {
+const Modal: React.FC<ModalProps> = ({ title, message, onClose, onConfirm, icon }) => {
   return (
     <div className="modalBackground">
       <div className="modalContent">
@@ -18,7 +19,7 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose, icon }) => {
         </div>
         <h2>{title}</h2>
         <p>{message}</p>
-        <button className="modalButton" onClick={onClose}>확인</button>
+        <button className="modalButton" onClick={onConfirm}>확인</button>
       </div>
     </div>
   );

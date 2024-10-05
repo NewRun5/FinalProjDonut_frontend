@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';  // next.js router 사용
 import Modal from '../modal/Modal';  // Modal 컴포넌트 가져옴
 import './sidebar.css';  // Sidebar 관련 스타일을 가져옴
 
 export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) => void }) {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);  // Modal 상태 관리
+  const router = useRouter();  // next.js의 router 사용
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
@@ -20,6 +22,14 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
 
   const closeModal = () => {
     setIsModalOpen(false);  // Modal 닫기
+  };
+
+  const handleLogout = () => {
+    openModal();  // Modal을 열기
+  };
+
+  const handleConfirmLogout = () => {
+    router.push('/login');  // 로그인 페이지로 이동
   };
 
   return (
@@ -46,7 +56,7 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
                     <img src="/images/mypage.svg" alt="mypage icon" />
                     <h2 className="profile-name">도넛또넛님</h2>
                   </div>
-                  <span className="logout_btn" onClick={openModal}> {/* logout_btn 클릭 시 Modal 열기 */}
+                  <span className="logout_btn" onClick={handleLogout}> {/* logout_btn 클릭 시 Modal 열기 */}
                     <img src="/images/icon_logout_white.png" alt="logout icon" />
                   </span>
                 </div>
@@ -92,6 +102,7 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
           title="로그아웃"
           message="로그아웃 되었습니다"
           onClose={closeModal}
+          onConfirm={handleConfirmLogout}  // Modal의 확인 버튼 클릭 시 handleConfirmLogout 호출
           icon="/images/icon_group_modal_check.svg"  // 변경된 아이콘 경로 전달
         />
       )}

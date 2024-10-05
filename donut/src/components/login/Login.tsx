@@ -94,7 +94,7 @@ const Login = () => {
         
 
         {isModalOpen && (
-          <Modal title="로그인 실패" message={errorMessage} onClose={closeModal} icon="/images/icon_group_modal_bang.svg"/>
+          <Modal title="로그인 실패" message={errorMessage} onClose={closeModal} onConfirm={closeModal} icon="/images/icon_group_modal_bang.svg"/>
         )}
       </div>
     </div>
