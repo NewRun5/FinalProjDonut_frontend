@@ -1,35 +1,87 @@
 "use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';  // next.js router 사용
-import Modal from '../modal/Modal';  // Modal 컴포넌트 가져옴
-import './sidebar.css';  // Sidebar 관련 스타일을 가져옴
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Modal from "../modal/Modal";
+import { fetchAllChatHistories } from '@/graphql/queries';
+import "./sidebar.css";
 
 export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) => void }) {
   const [sidebarVisible, setSidebarVisible] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);  // Modal 상태 관리
-  const router = useRouter();  // next.js의 router 사용
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [todayChats, setTodayChats] = useState([]);
+  const [yesterdayChats, setYesterdayChats] = useState([]);
+  const [olderChats, setOlderChats] = useState([]);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchAllChatHistories();
+      if (data) {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        // 오늘의 대화 내역을 최신순으로 정렬
+        const todayData = data
+          .filter(chat => {
+            const chatDate = new Date(chat.createDate);
+            return chatDate.toDateString() === today.toDateString();
+          })
+          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+
+        // 어제의 대화 내역을 최신순으로 정렬
+        const yesterdayData = data
+          .filter(chat => {
+            const chatDate = new Date(chat.createDate);
+            return chatDate.toDateString() === yesterday.toDateString();
+          })
+          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+
+        // 7일 전까지의 대화 내역을 최신순으로 정렬
+        const olderData = data
+          .filter(chat => {
+            const chatDate = new Date(chat.createDate);
+            return chatDate < yesterday;
+          })
+          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+
+        setTodayChats(todayData);
+        setYesterdayChats(yesterdayData);
+        setOlderChats(olderData);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
-    onToggle(!sidebarVisible);  // 부모 컴포넌트에 사이드바 상태 전달
+    onToggle(!sidebarVisible);
   };
 
   const openModal = () => {
-    setIsModalOpen(true);  // Modal 열기
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);  // Modal 닫기
+    setIsModalOpen(false);
   };
 
   const handleLogout = () => {
-    openModal();  // Modal을 열기
+    openModal();
   };
 
   const handleConfirmLogout = () => {
-    router.push('/login');  // 로그인 페이지로 이동
+    router.push("/login");
+  };
+
+  const handleChatClick = (date: string) => {
+    // 'T'는 URL에 포함되면 안 되므로 제거
+    const formattedDate = date.split("T")[0];
+    router.push(`/history?date=${formattedDate}`);  // 클릭한 날짜로 페이지 이동
   };
 
   return (
@@ -56,17 +108,16 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
                     <img src="/images/mypage.svg" alt="mypage icon" />
                     <h2 className="profile-name">도넛또넛님</h2>
                   </div>
-                  <span className="logout_btn" onClick={handleLogout}> {/* logout_btn 클릭 시 Modal 열기 */}
+                  <span className="logout_btn" onClick={handleLogout}>
                     <img src="/images/icon_logout_white.png" alt="logout icon" />
                   </span>
                 </div>
               </Link>
-              {/* 학습 하러 가기 링크 */}
               <Link href="/study">
                 <span className="learn-link">학습 하러 가기</span>
               </Link>
             </div>
-            <div>
+            <div className="archive_box">
               <Link href="#" className="archive_btn">
                 <img src="/images/archive.svg" alt="archive icon" />
                 <h2>DONUTCHIVE</h2>
@@ -74,9 +125,32 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
             </div>
             <nav className="sidebar-nav">
               <ul>
-                <li>오늘<br />AI 활용하는 법을 배우고 싶어.</li>
-                <li>어제<br />Chat GPT를 실용성 있게 사용하는 방법을 배우고 싶어.</li>
-                <li>지난 7일<br />물리학에 대해 배우고 싶어.</li>
+                <li className="chat_date_tit">오늘</li>
+                {todayChats.length > 0 ? todayChats.map(chat => (
+                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>
+                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}
+                  </li>
+                )) : (
+                  <li>대화 내역이 없습니다.</li>
+                )}
+
+                <li className="chat_date_tit">어제</li>
+                {yesterdayChats.length > 0 ? yesterdayChats.map(chat => (
+                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>
+                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}
+                  </li>
+                )) : (
+                  <li>대화 내역이 없습니다.</li>
+                )}
+
+                <li className="chat_date_tit">지난 7일</li>
+                {olderChats.length > 0 ? olderChats.map(chat => (
+                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>
+                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}
+                  </li>
+                )) : (
+                  <li>대화 내역이 없습니다.</li>
+                )}
               </ul>
             </nav>
           </>
@@ -102,8 +176,8 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
           title="로그아웃"
           message="로그아웃 되었습니다"
           onClose={closeModal}
-          onConfirm={handleConfirmLogout}  // Modal의 확인 버튼 클릭 시 handleConfirmLogout 호출
-          icon="/images/icon_group_modal_check.svg"  // 변경된 아이콘 경로 전달
+          onConfirm={handleConfirmLogout}
+          icon="/images/icon_group_modal_check.svg"
         />
       )}
     </>
