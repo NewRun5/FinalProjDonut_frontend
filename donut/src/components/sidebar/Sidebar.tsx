@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Modal from "../modal/Modal";
 import { fetchAllChatHistories } from '@/graphql/queries';
+import { logout } from '@/graphql/graphqlClient';
 import "./sidebar.css";
 
 export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) => void }) {
@@ -13,6 +14,7 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
   const [todayChats, setTodayChats] = useState([]);
   const [yesterdayChats, setYesterdayChats] = useState([]);
   const [olderChats, setOlderChats] = useState([]);
+
 
   const router = useRouter();
 
@@ -74,9 +76,14 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
     openModal();
   };
 
-  const handleConfirmLogout = () => {
-    router.push("/login");
+  // 로그아웃 요청 및 리다이렉트 처리
+  const handleConfirmLogout = async () => {
+    const result = await logout();
+    if (result) {
+      router.push("/login");  // 로그아웃 성공 시 로그인 페이지로 이동
+    }
   };
+
 
   const handleChatClick = (date: string) => {
     // 'T'는 URL에 포함되면 안 되므로 제거

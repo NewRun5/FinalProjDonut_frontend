@@ -15,11 +15,12 @@ const Modal: React.FC<ModalProps> = ({ title, message, onClose, onConfirm, icon 
     <div className="modalBackground">
       <div className="modalContent">
         <div className="modalIcon">
-          <img src={icon} alt="modal icon" />  {/* 아이콘 경로를 동적으로 사용 */}
+          <img src={icon} alt="modal icon"/> {/* 아이콘 경로를 동적으로 사용 */}
         </div>
         <h2>{title}</h2>
         <p>{message}</p>
         <button className="modalButton" onClick={onConfirm}>확인</button>
+        {/*<button className="modalButton" onClick={onClose}>취소</button>*/}
       </div>
     </div>
   );
