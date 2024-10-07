@@ -1,0 +1,12 @@
+/* src/app/donutchive.css */
+.pageContainer {
+    display: flex;
+    height: 100vh;
+}
+
+/* 왼쪽 사이드바는 Sidebar.css에서 스타일링되어 있음 */
+.content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
