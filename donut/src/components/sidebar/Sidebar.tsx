@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Modal from "../modal/Modal";
-import { fetchAllChatHistories } from '@/graphql/queries';
+import { fetchAllChatHistories, fetchUserProfile } from '@/graphql/queries'; // 사용자 정보 가져오기 위한 쿼리 추가
 import { logout } from '@/graphql/graphqlClient';
 import "./sidebar.css";
 
@@ -14,11 +14,32 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
   const [todayChats, setTodayChats] = useState([]);
   const [yesterdayChats, setYesterdayChats] = useState([]);
   const [olderChats, setOlderChats] = useState([]);
+  const [nickname, setNickname] = useState('');  // 사용자 닉네임 상태 추가
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
 
 
   const router = useRouter();
 
+  // 로그인 상태 및 사용자 닉네임 확인
   useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const userProfile = await fetchUserProfile(); // 사용자 정보 가져오기
+        if (userProfile) {
+          setNickname(userProfile.nickname); // 사용자 닉네임 설정
+          setIsLoggedIn(true); // 로그인 상태 true
+        } else {
+          setIsLoggedIn(false); // 로그인 상태 false
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus(); // 컴포넌트가 마운트될 때 로그인 상태 확인
+
+    // 채팅 기록 가져오기
     const fetchData = async () => {
       const data = await fetchAllChatHistories();
       if (data) {
@@ -59,32 +80,34 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
     fetchData();
   }, []);
 
+  // 사이드바 토글 기능
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
     onToggle(!sidebarVisible);
   };
 
+  // 로그아웃 모달 열기
   const openModal = () => {
     setIsModalOpen(true);
   };
 
+  // 로그아웃 모달 닫기
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
 
   const handleLogout = () => {
     openModal();
   };
 
-  // 로그아웃 요청 및 리다이렉트 처리
-  const handleConfirmLogout = async () => {
-    const result = await logout();
-    if (result) {
-      router.push("/login");  // 로그아웃 성공 시 로그인 페이지로 이동
-    }
+  // 로그아웃 처리 후 로그인 페이지로 리다이렉트
+  const handleConfirmLogout = () => {
+    setIsLoggedIn(false);
+    router.push("/login");
   };
 
-
+  // 날짜별 채팅 내역 클릭 시 처리
   const handleChatClick = (date: string) => {
     // 'T'는 URL에 포함되면 안 되므로 제거
     const formattedDate = date.split("T")[0];
@@ -109,17 +132,26 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
               </button>
             </div>
             <div className="sidebar-user">
-              <Link href="#" className="profile-link">
-                <div className="flex_between">
-                  <div className="profile-icon">
-                    <img src="/images/mypage.svg" alt="mypage icon" />
-                    <h2 className="profile-name">도넛또넛님</h2>
-                  </div>
-                  <span className="logout_btn" onClick={handleLogout}>
-                    <img src="/images/icon_logout_white.png" alt="logout icon" />
-                  </span>
-                </div>
-              </Link>
+              {isLoggedIn ? (
+                  <Link href="#" className="profile-link">
+                    <div className="flex_between">
+                      <div className="profile-icon">
+                        <img src="/images/mypage.svg" alt="mypage icon" />
+                        <h2 className="profile-name">{nickname}님</h2>
+                      </div>
+                      <span className="logout_btn" onClick={handleLogout}>
+                      <img src="/images/icon_logout_white.png" alt="logout icon" />
+                    </span>
+                    </div>
+                  </Link>
+              ) : (
+                  <Link href="/login" className="profile-link">
+                    <div className="profile-icon">
+                      <img src="/images/mypage.svg" alt="mypage icon" />
+                      <h2 className="profile-name">로그인</h2>
+                    </div>
+                  </Link>
+              )}
               <Link href="/study">
                 <span className="learn-link">학습 하러 가기</span>
               </Link>
@@ -178,6 +210,8 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
           </div>
         )}
       </aside>
+
+      {/* 로그아웃 모달 */}
       {isModalOpen && (
         <Modal
           title="로그아웃"
