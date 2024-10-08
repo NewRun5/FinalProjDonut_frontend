@@ -16,7 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   // 로그인 페이지에서는 사이드바를 숨기고, main 태그의 클래스를 다르게 설정
-  const hideSidebarPaths = ['/login'];
+  const hideSidebarPaths = ['/login', '/signup'];
 
   const mainClassName = hideSidebarPaths.includes(pathname)
     ? "main-content full"  // 로그인 페이지일 경우
