@@ -31,14 +31,12 @@ export default function Signup() {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    // Validation patterns
     const patterns = {
         username: /^[a-zA-Z0-9]{4,20}$/,
         password: /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,20}$/,
         nickname: /^[a-zA-Z0-9가-힣]{2,10}$/
     };
 
-    // Handle input changes
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -46,7 +44,6 @@ export default function Signup() {
             [name]: value
         }));
 
-        // Password match validation
         if (name === 'confirmPassword' || (name === 'password' && formData.confirmPassword)) {
             const match = name === 'confirmPassword' ?
                 value === formData.password :
@@ -55,10 +52,9 @@ export default function Signup() {
         }
     };
 
-    // Username availability check
     const handleCheckUsername = async () => {
         if (!patterns.username.test(formData.username)) {
-            alert('아이디는 4-20자의 영문자와 숫자만 사용 가능합니다.');
+            alert('아이디는 영문자와 숫자만 사용 가능합니다.');
             return;
         }
 
@@ -74,7 +70,6 @@ export default function Signup() {
         }
     };
 
-    // Nickname availability check
     const handleCheckNickname = async () => {
         if (!patterns.nickname.test(formData.nickname)) {
             alert('닉네임은 2-10자의 영문자, 숫자, 한글만 사용 가능합니다.');
@@ -93,7 +88,6 @@ export default function Signup() {
         }
     };
 
-    // Email verification code request
     const handleEmailVerification = async () => {
         setIsLoading(true);
         setMessages(prev => ({ ...prev, emailSent: null }));
@@ -123,7 +117,6 @@ export default function Signup() {
         }
     };
 
-    // Verify email code
     const handleVerification = async () => {
         setIsLoading(true);
         try {
@@ -161,11 +154,9 @@ export default function Signup() {
         }
     };
 
-    // Form submission
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        // Validation checks
         if (!validationState.isUsernameAvailable ||
             !validationState.isNicknameAvailable ||
             !validationState.isEmailVerified) {
@@ -199,7 +190,7 @@ export default function Signup() {
 
             if (response.ok) {
                 alert('회원가입이 완료되었습니다!');
-                router.push('/login'); // 로그인 페이지로 이동
+                router.push('/login');
             } else {
                 throw new Error(data.message || '회원가입 실패');
             }
@@ -209,159 +200,163 @@ export default function Signup() {
         }
     };
 
-    // Handle cancel
     const handleCancel = () => {
-        router.push('/'); // 메인 페이지로 이동
+        router.push('/');
     };
 
     return (
-        <div className={styles.container}>
-            <h1>회원가입</h1>
-            <form onSubmit={handleSubmit} className={styles.form}>
-                {/* 아이디 입력 */}
-                <div className={styles.inputGroup}>
-                    <label>아이디</label>
-                    <div className={styles.inputWithButton}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f7f9fc' }}>
+            <div style={{ maxWidth: '700px', width: '100%', padding: '30px', backgroundColor: '#ffffff', borderRadius: '16px', boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)' }}>
+                <h1 style={{ textAlign: 'center', color: '#4a4e69', fontWeight: '700', marginBottom: '25px' }}>회원가입</h1>
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    <div className={styles.inputGroup}>
+                        <label>아이디</label>
+                        <div className={styles.inputWithButton}>
+                            <input
+                                type="text"
+                                name="username"
+                                placeholder="아이디 (영문, 숫자)"
+                                value={formData.username}
+                                onChange={handleChange}
+                                required
+                                style={{ padding: '12px', borderRadius: '8px', border: '2px solid #d1d5db', fontSize: '14px', flex: '1' }}
+                            />
+                            <button type="button" onClick={handleCheckUsername} style={{ padding: '12px 20px', backgroundColor: '#c7d2fe', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.3s ease', marginLeft: '10px' }}>
+                                중복 확인
+                            </button>
+                        </div>
+                        {validationState.isUsernameAvailable === true &&
+                            <p className={styles.successText} style={{ color: '#16a34a', fontSize: '12px', marginTop: '5px' }}>사용 가능한 아이디입니다.</p>}
+                        {validationState.isUsernameAvailable === false &&
+                            <p className={styles.errorText} style={{ color: '#dc2626', fontSize: '12px', marginTop: '5px' }}>사용 불가능한 아이디입니다.</p>}
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label>비밀번호</label>
                         <input
-                            type="text"
-                            name="username"
-                            placeholder="아이디 (4-20자 영문, 숫자)"
-                            value={formData.username}
+                            type="password"
+                            name="password"
+                            placeholder="비밀번호 (영문, 숫자, 특수문자 포함 8-20자)"
+                            value={formData.password}
                             onChange={handleChange}
                             required
+                            style={{ padding: '12px', borderRadius: '8px', border: '2px solid #d1d5db', fontSize: '14px', width: '100%' }}
                         />
-                        <button type="button" onClick={handleCheckUsername}>
-                            중복 확인
-                        </button>
+                        {formData.password && !patterns.password.test(formData.password) &&
+                            <p className={styles.errorText} style={{ color: '#dc2626', fontSize: '12px', marginTop: '5px' }}>비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.</p>}
                     </div>
-                    {validationState.isUsernameAvailable === true &&
-                        <p className={styles.successText}>사용 가능한 아이디입니다.</p>}
-                    {validationState.isUsernameAvailable === false &&
-                        <p className={styles.errorText}>사용 불가능한 아이디입니다.</p>}
-                </div>
 
-                {/* 비밀번호 입력 */}
-                <div className={styles.inputGroup}>
-                    <label>비밀번호</label>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="비밀번호 (영문, 숫자, 특수문자 포함 8-20자)"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                    {formData.password && !patterns.password.test(formData.password) &&
-                        <p className={styles.errorText}>비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다.</p>}
-                </div>
-
-                {/* 비밀번호 확인 */}
-                <div className={styles.inputGroup}>
-                    <label>비밀번호 확인</label>
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="비밀번호 재입력"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required
-                    />
-                    {validationState.passwordMatch === true &&
-                        <p className={styles.successText}>비밀번호가 일치합니다.</p>}
-                    {validationState.passwordMatch === false &&
-                        <p className={styles.errorText}>비밀번호가 일치하지 않습니다.</p>}
-                </div>
-
-                {/* 닉네임 입력 */}
-                <div className={styles.inputGroup}>
-                    <label>닉네임</label>
-                    <div className={styles.inputWithButton}>
+                    <div className={styles.inputGroup}>
+                        <label>비밀번호 확인</label>
                         <input
-                            type="text"
-                            name="nickname"
-                            placeholder="닉네임 (2-10자 영문, 숫자, 한글)"
-                            value={formData.nickname}
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="비밀번호 재입력"
+                            value={formData.confirmPassword}
                             onChange={handleChange}
                             required
+                            style={{ padding: '12px', borderRadius: '8px', border: '2px solid #d1d5db', fontSize: '14px', width: '100%' }}
                         />
-                        <button type="button" onClick={handleCheckNickname}>
-                            중복 확인
+                        {validationState.passwordMatch === true &&
+                            <p className={styles.successText} style={{ color: '#16a34a', fontSize: '12px', marginTop: '5px' }}>비밀번호가 일치합니다.</p>}
+                        {validationState.passwordMatch === false &&
+                            <p className={styles.errorText} style={{ color: '#dc2626', fontSize: '12px', marginTop: '5px' }}>비밀번호가 일치하지 않습니다.</p>}
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label>닉네임</label>
+                        <div className={styles.inputWithButton}>
+                            <input
+                                type="text"
+                                name="nickname"
+                                placeholder="닉네임 (2-10자 영문, 숫자, 한글)"
+                                value={formData.nickname}
+                                onChange={handleChange}
+                                required
+                                style={{ padding: '12px', borderRadius: '8px', border: '2px solid #d1d5db', fontSize: '14px', flex: '1' }}
+                            />
+                            <button type="button" onClick={handleCheckNickname} style={{ padding: '12px 20px', backgroundColor: '#c7d2fe', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.3s ease', marginLeft: '10px' }}>
+                                중복 확인
+                            </button>
+                        </div>
+                        {validationState.isNicknameAvailable === true &&
+                            <p className={styles.successText} style={{ color: '#16a34a', fontSize: '12px', marginTop: '5px' }}>사용 가능한 닉네임입니다.</p>}
+                        {validationState.isNicknameAvailable === false &&
+                            <p className={styles.errorText} style={{ color: '#dc2626', fontSize: '12px', marginTop: '5px' }}>사용 불가능한 닉네임입니다.</p>}
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label>이메일</label>
+                        <div className={styles.inputWithButton}>
+                            <input
+                                type="text"
+                                name="email"
+                                placeholder="이메일"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                style={{ padding: '12px', borderRadius: '8px', border: '2px solid #d1d5db', fontSize: '14px', flex: '1' }}
+                            />
+                            <span style={{ margin: '0 10px' }}>@</span>
+                            <select
+                                name="emailDomain"
+                                value={formData.emailDomain}
+                                onChange={handleChange}
+                                style={{ padding: '12px', borderRadius: '8px', border: '2px solid #d1d5db', fontSize: '14px' }}
+                            >
+                                <option value="gmail.com">gmail.com</option>
+                                <option value="naver.com">naver.com</option>
+                                <option value="daum.net">daum.net</option>
+                            </select>
+                            <button
+                                type="button"
+                                onClick={handleEmailVerification}
+                                disabled={isLoading}
+                                style={{ padding: '12px 20px', backgroundColor: '#c7d2fe', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.3s ease', marginLeft: '10px' }}
+                            >
+                                {isLoading ? '발송 중...' : '인증번호 받기'}
+                            </button>
+                        </div>
+                        {messages.emailSent && <p>{messages.emailSent}</p>}
+                    </div>
+
+                    <div className={styles.inputGroup}>
+                        <label>인증번호</label>
+                        <div className={styles.inputWithButton}>
+                            <input
+                                type="text"
+                                name="verificationCode"
+                                placeholder="인증번호 6자리"
+                                value={formData.verificationCode}
+                                onChange={handleChange}
+                                required
+                                style={{ padding: '12px', borderRadius: '8px', border: '2px solid #d1d5db', fontSize: '14px', flex: '1' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleVerification}
+                                disabled={isLoading}
+                                style={{ padding: '12px 20px', backgroundColor: '#c7d2fe', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.3s ease', marginLeft: '10px' }}
+                            >
+                                {isLoading ? '확인 중...' : '인증확인'}
+                            </button>
+                        </div>
+                        {messages.verification}
+                    </div>
+
+                    {validationState.verificationError &&
+                        <p className={styles.errorText} style={{ color: '#dc2626', fontSize: '12px', marginTop: '5px' }}>입력한 정보를 다시 확인해주세요.</p>}
+
+                    <div className={styles.buttons} style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+                        <button type="button" onClick={handleCancel} style={{ width: '48%', padding: '12px', backgroundColor: '#4a4e69', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}>
+                            취소
+                        </button>
+                        <button type="submit" style={{ width: '48%', padding: '12px', backgroundColor: '#4a4e69', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}>
+                            회원가입
                         </button>
                     </div>
-                    {validationState.isNicknameAvailable === true &&
-                        <p className={styles.successText}>사용 가능한 닉네임입니다.</p>}
-                    {validationState.isNicknameAvailable === false &&
-                        <p className={styles.errorText}>사용 불가능한 닉네임입니다.</p>}
-                </div>
-
-                {/* 이메일 입력 */}
-                <div className={styles.inputGroup}>
-                    <label>이메일</label>
-                    <div className={styles.inputWithButton}>
-                        <input
-                            type="text"
-                            name="email"
-                            placeholder="이메일"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                        <span>@</span>
-                        <select
-                            name="emailDomain"
-                            value={formData.emailDomain}
-                            onChange={handleChange}
-                        >
-                            <option value="gmail.com">gmail.com</option>
-                            <option value="naver.com">naver.com</option>
-                            <option value="daum.net">daum.net</option>
-                        </select>
-                        <button
-                            type="button"
-                            onClick={handleEmailVerification}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? '발송 중...' : '인증번호 받기'}
-                        </button>
-                    </div>
-                    {messages.emailSent && <p>{messages.emailSent}</p>}
-                </div>
-
-                {/* 인증번호 입력 */}
-                <div className={styles.inputGroup}>
-                    <label>인증번호</label>
-                    <div className={styles.inputWithButton}>
-                        <input
-                            type="text"
-                            name="verificationCode"
-                            placeholder="인증번호 6자리"
-                            value={formData.verificationCode}
-                            onChange={handleChange}
-                            required
-                        />
-                        <button
-                            type="button"
-                            onClick={handleVerification}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? '확인 중...' : '인증확인'}
-                        </button>
-                    </div>
-                    {messages.verification}
-                </div>
-
-                {validationState.verificationError &&
-                    <p className={styles.errorText}>입력한 정보를 다시 확인해주세요.</p>}
-
-                <div className={styles.buttons}>
-                    <button type="button" onClick={handleCancel}>
-                        취소
-                    </button>
-                    <button type="submit">
-                        회원가입
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     );
 }
