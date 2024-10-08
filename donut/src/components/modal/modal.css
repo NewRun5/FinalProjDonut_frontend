@@ -9,6 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 100;
 }
 
 .modalContent {
@@ -27,6 +28,8 @@
   font-size: 50px;
   color: var(--main);
 }
+
+.modalIcon img {width: 36px; height: 36px;}
 
 .modalButton {
   height: 40px;
