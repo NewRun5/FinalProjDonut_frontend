@@ -1,0 +1,119 @@
+Index: donut/src/components/sidebar/Sidebar.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"use client\";\r\n\r\nimport { useState, useEffect } from \"react\";\r\nimport Link from \"next/link\";\r\nimport { useRouter } from \"next/navigation\";\r\nimport Modal from \"../modal/Modal\";\r\nimport { fetchAllChatHistories } from '@/graphql/queries';\r\nimport \"./sidebar.css\";\r\n\r\nexport default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) => void }) {\r\n  const [sidebarVisible, setSidebarVisible] = useState(true);\r\n  const [isModalOpen, setIsModalOpen] = useState(false);\r\n  const [todayChats, setTodayChats] = useState([]);\r\n  const [yesterdayChats, setYesterdayChats] = useState([]);\r\n  const [olderChats, setOlderChats] = useState([]);\r\n\r\n  const router = useRouter();\r\n\r\n  useEffect(() => {\r\n    const fetchData = async () => {\r\n      const data = await fetchAllChatHistories();\r\n      if (data) {\r\n        const today = new Date();\r\n        const yesterday = new Date(today);\r\n        yesterday.setDate(today.getDate() - 1);\r\n\r\n        // 오늘의 대화 내역을 최신순으로 정렬\r\n        const todayData = data\r\n          .filter(chat => {\r\n            const chatDate = new Date(chat.createDate);\r\n            return chatDate.toDateString() === today.toDateString();\r\n          })\r\n          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());\r\n\r\n        // 어제의 대화 내역을 최신순으로 정렬\r\n        const yesterdayData = data\r\n          .filter(chat => {\r\n            const chatDate = new Date(chat.createDate);\r\n            return chatDate.toDateString() === yesterday.toDateString();\r\n          })\r\n          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());\r\n\r\n        // 7일 전까지의 대화 내역을 최신순으로 정렬\r\n        const olderData = data\r\n          .filter(chat => {\r\n            const chatDate = new Date(chat.createDate);\r\n            return chatDate < yesterday;\r\n          })\r\n          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());\r\n\r\n        setTodayChats(todayData);\r\n        setYesterdayChats(yesterdayData);\r\n        setOlderChats(olderData);\r\n      }\r\n    };\r\n\r\n    fetchData();\r\n  }, []);\r\n\r\n  const toggleSidebar = () => {\r\n    setSidebarVisible(!sidebarVisible);\r\n    onToggle(!sidebarVisible);\r\n  };\r\n\r\n  const openModal = () => {\r\n    setIsModalOpen(true);\r\n  };\r\n\r\n  const closeModal = () => {\r\n    setIsModalOpen(false);\r\n  };\r\n\r\n  const handleLogout = () => {\r\n    openModal();\r\n  };\r\n\r\n  const handleConfirmLogout = () => {\r\n    router.push(\"/login\");\r\n  };\r\n\r\n  const handleChatClick = (date: string) => {\r\n    // 'T'는 URL에 포함되면 안 되므로 제거\r\n    const formattedDate = date.split(\"T\")[0];\r\n    router.push(`/history?date=${formattedDate}`);  // 클릭한 날짜로 페이지 이동\r\n  };\r\n\r\n  return (\r\n    <>\r\n      <aside className={sidebarVisible ? \"sidebar\" : \"sidebar collapsed\"}>\r\n        {sidebarVisible ? (\r\n          <>\r\n            <div className=\"sidebar-header\">\r\n              <button className=\"new-chat-button\">\r\n                <span>\r\n                  <img src=\"/images/new_chat_btn.svg\" alt=\"create new chat button\" />\r\n                </span>\r\n              </button>\r\n              <button className=\"toggle-button\" onClick={toggleSidebar}>\r\n                <span>\r\n                  <img src=\"/images/sidebar.svg\" alt=\"close sidebar button\" />\r\n                </span>\r\n              </button>\r\n            </div>\r\n            <div className=\"sidebar-user\">\r\n              <Link href=\"#\" className=\"profile-link\">\r\n                <div className=\"flex_between\">\r\n                  <div className=\"profile-icon\">\r\n                    <img src=\"/images/mypage.svg\" alt=\"mypage icon\" />\r\n                    <h2 className=\"profile-name\">도넛또넛님</h2>\r\n                  </div>\r\n                  <span className=\"logout_btn\" onClick={handleLogout}>\r\n                    <img src=\"/images/icon_logout_white.png\" alt=\"logout icon\" />\r\n                  </span>\r\n                </div>\r\n              </Link>\r\n              <Link href=\"/study\">\r\n                <span className=\"learn-link\">학습 하러 가기</span>\r\n              </Link>\r\n            </div>\r\n            <div className=\"archive_box\">\r\n              <Link href=\"#\" className=\"archive_btn\">\r\n                <img src=\"/images/archive.svg\" alt=\"archive icon\" />\r\n                <h2>DONUTCHIVE</h2>\r\n              </Link>\r\n            </div>\r\n            <nav className=\"sidebar-nav\">\r\n              <ul>\r\n                <li className=\"chat_date_tit\">오늘</li>\r\n                {todayChats.length > 0 ? todayChats.map(chat => (\r\n                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>\r\n                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}\r\n                  </li>\r\n                )) : (\r\n                  <li>대화 내역이 없습니다.</li>\r\n                )}\r\n\r\n                <li className=\"chat_date_tit\">어제</li>\r\n                {yesterdayChats.length > 0 ? yesterdayChats.map(chat => (\r\n                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>\r\n                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}\r\n                  </li>\r\n                )) : (\r\n                  <li>대화 내역이 없습니다.</li>\r\n                )}\r\n\r\n                <li className=\"chat_date_tit\">지난 7일</li>\r\n                {olderChats.length > 0 ? olderChats.map(chat => (\r\n                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>\r\n                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}\r\n                  </li>\r\n                )) : (\r\n                  <li>대화 내역이 없습니다.</li>\r\n                )}\r\n              </ul>\r\n            </nav>\r\n          </>\r\n        ) : (\r\n          <div className=\"collapsed-icons\">\r\n            <button className=\"new-chat-button\">\r\n              <img src=\"/images/new_chat_btn.svg\" alt=\"create new chat button\" />\r\n            </button>\r\n            <button className=\"profile-icon\">\r\n              <img src=\"/images/mypage.svg\" alt=\"mypage icon\" />\r\n            </button>\r\n            <button className=\"archive_btn\">\r\n              <img src=\"/images/archive.svg\" alt=\"archive icon\" />\r\n            </button>\r\n            <button className=\"toggle-button\" onClick={toggleSidebar}>\r\n              <img src=\"/images/sidebar.svg\" alt=\"expand sidebar button\" />\r\n            </button>\r\n          </div>\r\n        )}\r\n      </aside>\r\n      {isModalOpen && (\r\n        <Modal\r\n          title=\"로그아웃\"\r\n          message=\"로그아웃 되었습니다\"\r\n          onClose={closeModal}\r\n          onConfirm={handleConfirmLogout}\r\n          icon=\"/images/icon_group_modal_check.svg\"\r\n        />\r\n      )}\r\n    </>\r\n  );\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/donut/src/components/sidebar/Sidebar.tsx b/donut/src/components/sidebar/Sidebar.tsx
+--- a/donut/src/components/sidebar/Sidebar.tsx	(revision b226835236c30db0105e4fb563c173ad4003aa63)
++++ b/donut/src/components/sidebar/Sidebar.tsx	(date 1728372252783)
+@@ -4,7 +4,7 @@
+ import Link from "next/link";
+ import { useRouter } from "next/navigation";
+ import Modal from "../modal/Modal";
+-import { fetchAllChatHistories } from '@/graphql/queries';
++import { fetchAllChatHistories,fetchUserProfile } from '@/graphql/queries'; // 사용자 정보 가져오기 위한 쿼리 추가
+ import "./sidebar.css";
+ 
+ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) => void }) {
+@@ -13,10 +13,30 @@
+   const [todayChats, setTodayChats] = useState([]);
+   const [yesterdayChats, setYesterdayChats] = useState([]);
+   const [olderChats, setOlderChats] = useState([]);
++  const [nickname, setNickname] = useState('');  // 사용자 닉네임 상태 추가
++  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
+ 
+   const router = useRouter();
+ 
+   useEffect(() => {
++    const checkLoginStatus = async () => {
++      try {
++        const userProfile = await fetchUserProfile(); // 사용자 정보 가져오기
++        if (userProfile) {
++          setNickname(userProfile.nickname); // 사용자 닉네임 설정
++          setIsLoggedIn(true); // 로그인 상태 true
++        } else {
++          setIsLoggedIn(false); // 로그인 상태 false
++        }
++      } catch (error) {
++        console.error('Error fetching user profile:', error);
++        setIsLoggedIn(false);
++      }
++    };
++
++    checkLoginStatus(); // 컴포넌트가 마운트될 때 로그인 상태 확인
++
++    //채팅 기록 가져오기
+     const fetchData = async () => {
+       const data = await fetchAllChatHistories();
+       if (data) {
+@@ -57,33 +77,50 @@
+     fetchData();
+   }, []);
+ 
++  // 사이드바 토글 기능
+   const toggleSidebar = () => {
+     setSidebarVisible(!sidebarVisible);
+     onToggle(!sidebarVisible);
+   };
+ 
++  // 로그아웃 모달 열기
+   const openModal = () => {
+     setIsModalOpen(true);
+   };
+ 
++  // 로그아웃 모달 닫기
+   const closeModal = () => {
+     setIsModalOpen(false);
+   };
+ 
++  // 로그아웃 처리 후 로그인 페이지로 리다이렉트
+   const handleLogout = () => {
+     openModal();
+   };
+ 
++  // 로그아웃 처리 후 로그인 페이지로 리다이렉트
+   const handleConfirmLogout = () => {
++    setIsLoggedIn(false);
+     router.push("/login");
+   };
+ 
++  // 날짜별 채팅 내역 클릭 시 처리
+   const handleChatClick = (date: string) => {
+     // 'T'는 URL에 포함되면 안 되므로 제거
+     const formattedDate = date.split("T")[0];
+     router.push(`/history?date=${formattedDate}`);  // 클릭한 날짜로 페이지 이동
+   };
+ 
++  // 로그인 상태가 아닌 경우 로그인 안내 메시지
++  if (!isLoggedIn) {
++    return (
++        <div className="login-message">
++          <p>로그인하세요.</p>
++          <Link href="/login">로그인 페이지로 이동</Link>
++        </div>
++    );
++  }
++
+   return (
+     <>
+       <aside className={sidebarVisible ? "sidebar" : "sidebar collapsed"}>
+@@ -106,7 +143,7 @@
+                 <div className="flex_between">
+                   <div className="profile-icon">
+                     <img src="/images/mypage.svg" alt="mypage icon" />
+-                    <h2 className="profile-name">도넛또넛님</h2>
++                    <h2 className="profile-name">{nickname}님</h2> {/* 사용자 닉네임 표시 */}
+                   </div>
+                   <span className="logout_btn" onClick={handleLogout}>
+                     <img src="/images/icon_logout_white.png" alt="logout icon" />
+@@ -171,6 +208,8 @@
+           </div>
+         )}
+       </aside>
++
++      {/* 로그아웃 모달 */}
+       {isModalOpen && (
+         <Modal
+           title="로그아웃"
