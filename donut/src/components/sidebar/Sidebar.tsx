@@ -5,51 +5,52 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Modal from "../modal/Modal";
 import { fetchAllChatHistories } from '@/graphql/queries';
-import { logout } from '@/graphql/graphqlClient';
+import { checkLoginStatus, getAllChapters, getUserBySession, logout } from '@/graphql/graphqlClient';
 import "./sidebar.css";
 
 export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) => void }) {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [todayChats, setTodayChats] = useState([]);
-  const [yesterdayChats, setYesterdayChats] = useState([]);
-  const [olderChats, setOlderChats] = useState([]);
+  const [todayChats, setTodayChats] = useState<Chap[]>([]);
+  const [yesterdayChats, setYesterdayChats] = useState<Chap[]>([]);
+  const [olderChats, setOlderChats] = useState<Chap[]>([]);
+  const [userInfo, setUserInfo] = useState<{nickname:string} | null>(null);
+  const [isLogin, setIsLogin] = useState<boolean | null>(false);
+
 
 
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchAllChatHistories();
+      const data: Chap[] = await getAllChapters();
       if (data) {
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
-
-        // 오늘의 대화 내역을 최신순으로 정렬
+        console.log(data)
         const todayData = data
-          .filter(chat => {
-            const chatDate = new Date(chat.createDate);
+          .filter(chap => {
+            const chatDate = new Date(chap.createDate ?? new Date());
             return chatDate.toDateString() === today.toDateString();
           })
-          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+          .sort((a, b) => new Date(b.createDate ?? new Date()).getTime() - new Date(a.createDate ?? new Date()).getTime());
 
         // 어제의 대화 내역을 최신순으로 정렬
         const yesterdayData = data
-          .filter(chat => {
-            const chatDate = new Date(chat.createDate);
+          .filter(chap => {
+            const chatDate = new Date(chap.createDate ?? new Date())
             return chatDate.toDateString() === yesterday.toDateString();
           })
-          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+          .sort((a, b) => new Date(b.createDate ?? new Date()).getTime() - new Date(a.createDate ?? new Date()).getTime());
 
         // 7일 전까지의 대화 내역을 최신순으로 정렬
         const olderData = data
-          .filter(chat => {
-            const chatDate = new Date(chat.createDate);
+          .filter(chap => {
+            const chatDate = new Date(chap.createDate ?? new Date())
             return chatDate < yesterday;
           })
-          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
-
+          .sort((a, b) => new Date(b.createDate ?? new Date()).getTime() - new Date(a.createDate ?? new Date()).getTime());
         setTodayChats(todayData);
         setYesterdayChats(yesterdayData);
         setOlderChats(olderData);
@@ -73,22 +74,39 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
   };
 
   const handleLogout = () => {
-    openModal();
-  };
-
-  // 로그아웃 요청 및 리다이렉트 처리
-  const handleConfirmLogout = async () => {
-    const result = await logout();
-    if (result) {
-      router.push("/login");  // 로그아웃 성공 시 로그인 페이지로 이동
+    const result = async function name() {
+      const reulst = await logout()
     }
+    result()
+    console.log("로그아웃")
+    openModal();  // Modal을 열기
   };
 
+  const handleConfirmLogout = () => {
+    router.push('/login');  // 로그인 페이지로 이동
+  };
+  useEffect(() => {
+    const fetchLoginStatus = async () => {
+      const loginStatus = await checkLoginStatus();
+      setIsLogin(loginStatus);
+      if (!loginStatus) router.push('/login')
+    };
 
-  const handleChatClick = (date: string) => {
-    // 'T'는 URL에 포함되면 안 되므로 제거
-    const formattedDate = date.split("T")[0];
-    router.push(`/history?date=${formattedDate}`);  // 클릭한 날짜로 페이지 이동
+    fetchLoginStatus();
+  }, [])
+  useEffect(() => {
+    if (isLogin) {
+      const getUserInfo = async () => {
+        const result = await getUserBySession()
+        setUserInfo(result)
+      }
+      getUserInfo();
+    }
+  }, [isLogin])
+
+
+  const handleChatClick = (id: number) => {
+    router.push("?chapter=" + id)
   };
 
   return (
@@ -99,7 +117,9 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
             <div className="sidebar-header">
               <button className="new-chat-button">
                 <span>
+                  <Link href="/">
                   <img src="/images/new_chat_btn.svg" alt="create new chat button" />
+                  </Link>
                 </span>
               </button>
               <button className="toggle-button" onClick={toggleSidebar}>
@@ -113,15 +133,12 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
                 <div className="flex_between">
                   <div className="profile-icon">
                     <img src="/images/mypage.svg" alt="mypage icon" />
-                    <h2 className="profile-name">도넛또넛님</h2>
+                    <h2 className="profile-name">{userInfo?.nickname}</h2>
                   </div>
                   <span className="logout_btn" onClick={handleLogout}>
                     <img src="/images/icon_logout_white.png" alt="logout icon" />
                   </span>
                 </div>
-              </Link>
-              <Link href="/study">
-                <span className="learn-link">학습 하러 가기</span>
               </Link>
             </div>
             <div className="archive_box">
@@ -133,27 +150,27 @@ export default function Sidebar({ onToggle }: { onToggle: (isVisible: boolean) =
             <nav className="sidebar-nav">
               <ul>
                 <li className="chat_date_tit">오늘</li>
-                {todayChats.length > 0 ? todayChats.map(chat => (
-                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>
-                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}
+                {todayChats.length > 0 ? todayChats.map(chap => (
+                  <li key={chap.id} onClick={() => handleChatClick(chap.id)}>
+                    {chap.title}<br/>{new Date(chap.createDate).toLocaleDateString()}
                   </li>
                 )) : (
                   <li>대화 내역이 없습니다.</li>
                 )}
 
                 <li className="chat_date_tit">어제</li>
-                {yesterdayChats.length > 0 ? yesterdayChats.map(chat => (
-                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>
-                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}
+                {yesterdayChats.length > 0 ? yesterdayChats.map(chap => (
+                  <li key={chap.id} onClick={() => handleChatClick(chap.id)}>
+                    {chap.title} - {new Date(chap.createDate).toLocaleDateString()}
                   </li>
                 )) : (
                   <li>대화 내역이 없습니다.</li>
                 )}
 
                 <li className="chat_date_tit">지난 7일</li>
-                {olderChats.length > 0 ? olderChats.map(chat => (
-                  <li key={chat.id} onClick={() => handleChatClick(chat.createDate)}>
-                    {chat.content} - {new Date(chat.createDate).toLocaleDateString()}
+                {olderChats.length > 0 ? olderChats.map(chap => (
+                  <li key={chap.id} onClick={() => handleChatClick(chap.id)}>
+                    {chap.title} - {new Date(chap.createDate).toLocaleDateString()}
                   </li>
                 )) : (
                   <li>대화 내역이 없습니다.</li>

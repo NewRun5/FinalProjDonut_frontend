@@ -1,9 +1,9 @@
 // page.tsx
 "use client";
 
-import '../styles/globals.css';
-import '../styles/main.css';
-import Chat from '../components/chat/Chat';
+import '../../styles/globals.css';
+import '../../styles/main.css';
+import Chat from '../../components/chat/Chat';
 import { useState } from 'react';
 
 export default function Home({chapterId}:{chapterId:string}) {
@@ -20,7 +20,7 @@ export default function Home({chapterId}:{chapterId:string}) {
         <div className="search-icon">
           <img src="/images/main_logo.svg" alt="Search Icon" />
         </div>
-        <h1>DONUT</h1>
+        <h1>나만의 원티드 클래스, DONUT</h1>
       </header>
 
       {/* <section> 태그에 조건부 렌더링 적용 */}

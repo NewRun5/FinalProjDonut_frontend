@@ -3,12 +3,17 @@
 // 클릭한 대화의 날짜에 해당하는 대화 내역 조회
 // GraphQL 쿼리 정의
 export const GET_CHAT_HISTORY_BY_DATE = `
-  query GetChatHistoryByDate($date: String!) {
-    getChatHistoryByDate(date: $date) {
+  query {
+    getAllChapters {
       id
-      content
-      isUser
+      title
       createDate
+      chatList {
+        id
+        content
+        isUser
+        createDate
+      }
     }
   }
 `;

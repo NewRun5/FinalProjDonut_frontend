@@ -88,7 +88,7 @@ const Login = () => {
           <p className={styles.signUp_txt}>아직 DONUT 회원이 아니신가요?</p>
   
           <div className={styles.helpLinks}>
-            <a href="#">회원가입</a>
+            <a href="signup">회원가입</a>
           </div>
         </div>
         
